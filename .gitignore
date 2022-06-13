@@ -1,0 +1,16 @@
+*.suo
+*.user
+.vs/
+~*.xlsx
+[Bb]in/
+[Oo]bj/
+[Oo]bj.NCD/
+[Dd]ebug/
+_UpgradeReport_Files/
+[Pp]ackages/
+[Mm]igrations/
+
+
+Thumbs.db
+Desktop.ini
+.DS_Store
