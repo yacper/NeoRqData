@@ -16,8 +16,9 @@ namespace RqDataSharp
 {
     public partial class RqDataClient
     {
-        public const string HostUrl = "https://finnhub.io/";
-        public const string ApiUrl = "https://dataapi.joinquant.com/apis";
+        public const string HostUrl = "https://ricequant.com/";
+        public const string AuthUrl = "https://rqdata.ricequant.com/auth";
+        public const string ApiUrl = "https://rqdata.ricequant.com/api";
         public const string WebsocketUrl = "wss://ws.finnhub.io";
     }
 
