@@ -19,19 +19,19 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using RLib.Base;
 
-namespace RqDataSharp
+namespace NeoRqData
 {
     public partial class RqDataClient : ObservableObject, IRqDataClient
     {
-        public RqDataClient(string acc, string pwd, int callsPerMin = 300)
+        public RqDataClient(string acccount, string pwd, int callsPerMin = 300)
         {
-            _Acc = acc;
-            _Pwd = pwd;
+            Acccount_ = acccount;
+            Pwd_ = pwd;
 
             CallsPerMin = callsPerMin;
         }
 
-        public string ApiKey => _ApiKey;
+        public string ApiKey => ApiKey_;
         public int CallsPerMin { get; set; }
 
         public int            CallsInScope
@@ -75,27 +75,42 @@ namespace RqDataSharp
             }
         }
 
-        public async Task<bool>   Init()
+        public EConnectionState ConnectionState { get => ConnectionState_; set => SetProperty(ref ConnectionState_, value); }
+
+        public async Task<bool>   Connect(string user = null, string pwd = null)
         {
-            //error:auth failed
-            //认证失败
-
-            var ret = await ApiUrl.PostJsonAsync(new
+            if (ConnectionState == EConnectionState.Disconnected)
             {
-                method = "get_token",
-                mob=_Acc,
-                pwd=_Pwd
-            }).ReceiveString();
+                if (user != null)
+                    Acccount_ = user;
+                if (pwd != null)
+                    Pwd_ = pwd;
 
-            if (ret.Contains("error"))
-            {
-                LastErrMsg = ret;
+                //error:auth failed
+                //认证失败
+                ConnectionState = EConnectionState.Connecting;
 
-                return false;
+                var ret = await AuthUrl.PostJsonAsync(new
+                {
+                    user_name = Acccount_,
+                    password  = Pwd_
+                }).ReceiveString();
+
+                if (ret.Contains("error"))
+                {
+                    LastErrMsg = ret;
+
+                    ConnectionState = EConnectionState.Disconnected;
+
+                    return false;
+                }
+
+                ApiKey_ = ret;
+
+                ConnectionState = EConnectionState.Connected;
             }
 
-            _ApiKey = ret;
-            return true;
+            return ConnectionState == EConnectionState.Connected;
         }
 
         public async Task<int> get_query_count()
@@ -103,7 +118,7 @@ namespace RqDataSharp
             var ret = await ApiUrl.PostJsonAsync(new
             {
                 method = "get_query_count",
-                token=_ApiKey
+                token=ApiKey_
             }).ReceiveString();
 
 
@@ -123,7 +138,7 @@ namespace RqDataSharp
             {
                 method = "get_all_securities",
                 code=type.ToString(),
-                token=_ApiKey
+                token=ApiKey_
             }).ReceiveStream();
 
 
@@ -140,7 +155,7 @@ namespace RqDataSharp
             {
                 method = "get_security_info",
                 code=code,
-                token=_ApiKey
+                token=ApiKey_
             }).ReceiveStream();
 
             SecurityInfo rtn = ret.FromCsv<SecurityInfo>().FirstOrDefault();
@@ -148,32 +163,61 @@ namespace RqDataSharp
             return rtn;
         }
 
-        public async Task<List<Bar>> get_price(string code, ETimeFrame timeframe = ETimeFrame.m1, int count = 5000,
-            DateTime? endDate = null, DateTime? fq_ref_date = null)
+        public async Task<List<Bar>> get_price(IEnumerable<string> order_book_ids,   DateTime    start_date,                   DateTime end_date,               ETimeFrame frequency = ETimeFrame.D1,
+            IEnumerable<string>                                    fields    = null, EAdjustType adjust_type = EAdjustType.pre, bool     skip_suspended = false, EMarket    market    = EMarket.cn,
+            bool                                                   expect_df = true, string      time_slice = null)
         {
-            //code: 证券代码
-            //count: 大于0的整数，表示获取bar的条数，不能超过5000
-            //unit: bar的时间单位, 支持如下周期：1m, 5m, 15m, 30m, 60m, 120m, 1d, 1w, 1M。其中m表示分钟，d表示天，w表示周，M表示月
-            //end_date：查询的截止时间，默认是今天
-            //fq_ref_date：复权基准日期，该参数为空时返回不复权数据
-            if (endDate == null)
-                endDate = DateTime.Now;
-
-            var ret = await ApiUrl.PostJsonAsync(new
+            var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
             {
-                method = "get_price",
-                code=code,
-                unit=timeframe.ToResolutionString(),
-                count=count,
-                end_date=endDate.Value.ToJqDate(),
-                fq_ref_date=fq_ref_date==null?endDate.Value.ToJqDate():fq_ref_date.Value.ToJqDate(),
-                token=_ApiKey
-            }).ReceiveStream();
+                method      = "get_price",
+                order_book_ids        = order_book_ids,
+                start_date = start_date.ToString(),
+                end_date = end_date.ToString(),
+                frequency = frequency.ToResolutionString(),
+                fields = fields,
+                adjust_type = adjust_type.ToString(),
+                skip_suspended = skip_suspended,
+                market = market.ToString(),
+                expect_df = expect_df,
+                time_slice = time_slice
+
+                }).ReceiveStream();
+            //}).ReceiveString();
 
             List<Bar> rtn = ret.FromCsv<Bar>();
 
             return rtn;
+
         }
+
+
+
+        //public async Task<List<Bar>> get_price(string code, ETimeFrame timeframe = ETimeFrame.m1, int count = 5000,
+        //    DateTime? endDate = null, DateTime? fq_ref_date = null)
+        //{
+        //    //code: 证券代码
+        //    //count: 大于0的整数，表示获取bar的条数，不能超过5000
+        //    //unit: bar的时间单位, 支持如下周期：1m, 5m, 15m, 30m, 60m, 120m, 1d, 1w, 1M。其中m表示分钟，d表示天，w表示周，M表示月
+        //    //end_date：查询的截止时间，默认是今天
+        //    //fq_ref_date：复权基准日期，该参数为空时返回不复权数据
+        //    if (endDate == null)
+        //        endDate = DateTime.Now;
+
+        //    var ret = await ApiUrl.PostJsonAsync(new
+        //    {
+        //        method = "get_price",
+        //        code=code,
+        //        unit=timeframe.ToResolutionString(),
+        //        count=count,
+        //        end_date=endDate.Value.ToJqDate(),
+        //        fq_ref_date=fq_ref_date==null?endDate.Value.ToJqDate():fq_ref_date.Value.ToJqDate(),
+        //        token=ApiKey_
+        //    }).ReceiveStream();
+
+        //    List<Bar> rtn = ret.FromCsv<Bar>();
+
+        //    return rtn;
+        //}
         public async Task<List<Bar>>     get_price_period(string code, ETimeFrame timeframe, DateTime date, DateTime? endDate = null, DateTime? fq_ref_date = null)
         {
             //指定开始时间date和结束时间end_date时间段，获取行情数据
@@ -194,7 +238,7 @@ namespace RqDataSharp
                 date=date.ToJqDate(),
                 end_date=endDate.Value.ToJqDate(),
                 fq_ref_date=fq_ref_date==null?endDate.Value.ToJqDate():fq_ref_date.Value.ToJqDate(),
-                token=_ApiKey
+                token=ApiKey_
             }).ReceiveStream();
 
             List<Bar> rtn = ret.FromCsv<Bar>();
@@ -208,7 +252,7 @@ namespace RqDataSharp
             {
                 method = "get_current_price",
                 code= codes.Join(','),
-                token=_ApiKey
+                token=ApiKey_
             }).ReceiveStream();
 
             List<CurrentPrice> rtn = ret.FromCsv<CurrentPrice>();
@@ -227,7 +271,7 @@ namespace RqDataSharp
                 code = code,
                 start_date = startDate.Value.ToJqDate(),
                 end_date=endDate.Value.ToJqDate(),
-                token = _ApiKey
+                token = ApiKey_
             //}).ReceiveStream();
             }).ReceiveString();
 
@@ -254,7 +298,7 @@ namespace RqDataSharp
                 method = "get_future_contracts",
                 code=code,
                 date=date.Value.ToJqDate(),
-                token=_ApiKey
+                token=ApiKey_
             }).ReceiveString();
 
             List<string> rtn = ret.Split('\n').ToList();
@@ -271,7 +315,7 @@ namespace RqDataSharp
             {
                 method = "get_dominant_future",
                 code=code,
-                token=_ApiKey
+                token=ApiKey_
             }).ReceiveString();
 
             return ret;
@@ -281,10 +325,12 @@ namespace RqDataSharp
         #endregion
 
 
-        protected string _ApiKey;
-        protected string _Acc;
-        protected string _Pwd;
+        protected string ApiKey_;
+        protected string Acccount_;
+        protected string Pwd_;
 
         protected string _LastErrMsg;
+
+        protected EConnectionState ConnectionState_;
     }
 }
