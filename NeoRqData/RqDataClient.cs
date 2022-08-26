@@ -18,6 +18,7 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using RLib.Base;
+using RLib.Base.Utils;
 
 namespace NeoRqData
 {
@@ -125,29 +126,55 @@ namespace NeoRqData
             return Convert.ToInt32(ret);
         }
 
+		/*
+,order_book_id,underlying_symbol,market_tplus,symbol,margin_rate,maturity_date,type,trading_code,exchange,product,contract_multiplier,round_lot,trading_hours,listed_date,industry_name,de_listed_date,underlying_order_book_id
+0,A0303,A,0.0,豆一0303,0.05,2003-03-14,Future,a0303,DCE,Commodity,10.0,1.0,"21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",2002-03-15,油脂,2003-03-14,null
+1,A0305,A,0.0,豆一0305,0.05,2003-05-23,Future,a0305,DCE,Commodity,10.0,1.0,"21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",2002-03-15,油脂,2003-05-23,null
+...
+121,A2305,A,0.0,黄大豆1号2305,0.12,2023-05-18,Future,a2305,DCE,Commodity,10.0,1.0,"21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",2022-05-19,油脂,2023-05-18,
+122,A2307,A,0.0,黄大豆1号2307,0.12,2023-07-14,Future,a2307,DCE,Commodity,10.0,1.0,"21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",2022-07-15,油脂,2023-07-14,
+123,A88,A,0.0,黄大豆号主力连续,0.12,0000-00-00,Future,A2211,DCE,Commodity,10.0,1.0,"21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",0000-00-00,油脂,0000-00-00,
+124,A888,A,0.0,黄大豆号主力连续价差平滑,0.12,0000-00-00,Future,A2211,DCE,Commodity,10.0,1.0,"21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",0000-00-00,油脂,0000-00-00,
+125,A889,A,0.0,黄大豆号主力连续价差平滑（后复权）,0.12,0000-00-00,Future,A2211,DCE,Commodity,10.0,1.0,"21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",0000-00-00,油脂,0000-00-00,
+126,A99,A,0.0,黄大豆号指数连续,0.12,0000-00-00,Future,a2205,DCE,Commodity,10.0,1.0,"21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",0000-00-00,油脂,0000-00-00,
+         */
+		public async Task<List<SecurityInfo>> all_instruments(ESymbolType type, EMarket market = EMarket.cn, DateTime? date = null)
+		{
+			var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+			{
+				method         = "all_instruments",
+				type = type.ToString(),
+				market = market.ToString(),
+				date = date?.Date??null
+			}).ReceiveStream();
+			//}).ReceiveString();
 
-        //获取平台支持的所有股票、基金、指数、期货信息
-        //参数：
-        //code: 证券类型,可选: stock, fund, index, futures, etf, lof, fja, fjb, QDII_fund, open_fund, bond_fund, stock_fund, money_market_fund, mixture_fund, options
-        //date: 日期，用于获取某日期还在上市的证券信息，date为空时表示获取所有日期的标的信息
-        public async Task<List<Security>> get_all_securities(ECodeType type, DateTime? date = null)
-        {
-            //await _CheckCalls();
+			List<SecurityInfo> rtn = ret.FromCsv<SecurityInfo>();
+			return rtn;
+		}
 
-            var ret = await ApiUrl.PostJsonAsync(new
-            {
-                method = "get_all_securities",
-                code=type.ToString(),
-                token=ApiKey_
-            }).ReceiveStream();
+		public async Task<SecurityInfo> instruments(string order_book_id)
+		{
+			return (await instruments(order_book_id.ToEnumerable())).FirstOrDefault();
+		}
+
+		public async Task<List<SecurityInfo>> instruments(IEnumerable<string> order_book_ids)
+		{
+			var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+			{
+				method         = "instruments",
+				order_book_ids = order_book_ids,
+			}).ReceiveStream();
+			//}).ReceiveString();
+
+			List<SecurityInfo> rtn = ret.FromCsv<SecurityInfo>();
+			return rtn;
+		}
 
 
-            List<Security> rtn = ret.FromCsv<Security>();
 
-            return rtn;
-        }
-      
-        public async Task<SecurityInfo> get_security_info(string code)
+
+		public async Task<SecurityInfo> get_security_info(string code)
         {
             //await _CheckCalls();
 
@@ -163,14 +190,14 @@ namespace NeoRqData
             return rtn;
         }
 
-        public async Task<List<Bar>> get_price(IEnumerable<string> order_book_ids,   DateTime    start_date,                   DateTime end_date,               ETimeFrame frequency = ETimeFrame.D1,
+        public async Task<List<Bar>> get_price(string order_book_id,   DateTime    start_date,                   DateTime end_date,               ETimeFrame frequency = ETimeFrame.D1,
             IEnumerable<string>                                    fields    = null, EAdjustType adjust_type = EAdjustType.pre, bool     skip_suspended = false, EMarket    market    = EMarket.cn,
             bool                                                   expect_df = true, string      time_slice = null)
         {
             var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
             {
                 method      = "get_price",
-                order_book_ids        = order_book_ids,
+                order_book_ids        = order_book_id,
                 start_date = start_date.ToString(),
                 end_date = end_date.ToString(),
                 frequency = frequency.ToResolutionString(),
@@ -260,67 +287,81 @@ namespace NeoRqData
             return rtn;
 
         }
-
-        public async Task<List<Tick>> get_ticks(string code, DateTime? startDate = null, DateTime? endDate = null,
-            int count = 5000, string fields = "None", bool skip = true, bool df = false)
+       
+        public async Task<List<Tick>> get_ticks(string order_book_id)
         {
+			var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+			{
+				method         = "get_ticks",
+				order_book_id = order_book_id,
+			}).ReceiveStream();
+			//}).ReceiveString();
 
-            var ret = await ApiUrl.PostJsonAsync(new
-            {
-                method = "get_ticks",
-                code = code,
-                start_date = startDate.Value.ToJqDate(),
-                end_date=endDate.Value.ToJqDate(),
-                token = ApiKey_
+			List<Tick> rtn = ret.FromCsv<Tick>();
+
+			return rtn;
+		}
+
+		//获取期权合约 2020 年 3 月 9 日 9 时 40 分 00 秒-2020 年 3 月 9 日 9 时 40 分 02 秒之间的 tick 数据
+		//get_live_ticks(order_book_ids=['10002726'], start_dt= '20210309094000', end_dt= '20210309094002')
+		public async Task<List<Tick>>  get_live_ticks(string order_book_id, Tuple<DateTime, DateTime> range = null, IEnumerable<string> fields = null)
+        {
+			var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+			{
+				method         = "get_live_ticks",
+				order_book_ids = order_book_id,
+				start_dt     = range != null?range.Item1.ToString():null,
+				end_dt       =range != null?range.Item2.ToString():null,
+				fields = fields
+            }).ReceiveStream();
+            //}).ReceiveString();
+
+
+			List<Tick> rtn = ret.FromCsv<Tick>();
+
+			return rtn;
+		}
+
+
+		#region 期货
+
+		//获取某期货品种在指定日期下的可交易合约标的列表
+		//code: 期货合约品种，如 AG (白银)
+		//date: 指定日期
+		public async Task<List<string>> get_contracts(string underlying_symbol, DateTime? date = null)
+        {
+           	var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+			{
+				method         = "futures.get_contracts",
+				underlying_symbol = underlying_symbol,
+				date     = date != null?date.Value.ToString():null,
             //}).ReceiveStream();
             }).ReceiveString();
 
+			List<string>         rtn = ret.Split('\n').ToList();
+            rtn.RemoveAt(0);
 
-            List<Tick> rtn = ret.FromCsv<Tick>();
-
-            return rtn;
-
+			return rtn;
         }
 
-
-        #region 期货
-
-        //获取某期货品种在指定日期下的可交易合约标的列表
-        //code: 期货合约品种，如 AG (白银)
-        //date: 指定日期
-        public async Task<List<string>> get_future_contracts(string code, DateTime? date = null)
+        public async Task<List<DominantFuture>> get_dominant(string underlying_symbol, DateTime? start_date = null, DateTime? end_date = null, int rule = 0, int rank = 1)
         {
-            if (date == null)
-                date = DateTime.Now;
+			var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+			{
+				method         = "futures.get_dominant",
+				underlying_symbol = underlying_symbol,
+				start_date     = start_date != null?start_date.Value.ToString():null,
+				end_date     = end_date != null?end_date.Value.ToString():null,
+				rule =rule,
+				rank=rank
+            }).ReceiveStream();
+            //}).ReceiveString();
 
-            var ret = await ApiUrl.PostJsonAsync(new
-            {
-                method = "get_future_contracts",
-                code=code,
-                date=date.Value.ToJqDate(),
-                token=ApiKey_
-            }).ReceiveString();
 
-            List<string> rtn = ret.Split('\n').ToList();
+			List<DominantFuture> rtn = ret.FromCsv<DominantFuture>();
 
-            return rtn;
-        }
-
-        //获取主力合约对应的标的
-        //code: 期货合约品种，如 AG (白银)
-        //date: 指定日期参数，获取历史上该日期的主力期货合约
-        public async Task<string> get_dominant_future(string code)
-        {
-            var ret = await ApiUrl.PostJsonAsync(new
-            {
-                method = "get_dominant_future",
-                code=code,
-                token=ApiKey_
-            }).ReceiveString();
-
-            return ret;
-        }
-
+			return rtn;
+		}
 
         #endregion
 

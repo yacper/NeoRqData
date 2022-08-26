@@ -30,10 +30,19 @@ public class Tests
     }
 
     [Test]
-    public async Task GetCandels()
+    public async Task all_instruments()
     {
-        var rtn = await Client_.get_security_info("000001.XSHE");
+        //var rtn = await Client_.all_instruments(ESymbolType.Future, EMarket.cn);
+        var rtn2 = await Client_.all_instruments(ESymbolType.Future, EMarket.cn, DateTime.Now);
     }
+
+    [Test]
+    public async Task instruments()
+    {
+        //var rtn = await Client_.all_instruments(ESymbolType.Future, EMarket.cn);
+        var rtn2 = await Client_.instruments("au2210");
+    }
+
 
     [Test]
     public async Task get_query_count()
@@ -41,70 +50,46 @@ public class Tests
         var rtn = await Client_.get_query_count();
     }
 
-    [Test]
-    public async Task get_all_securities()
-    {
-        var rtn = await Client_.get_all_securities(ECodeType.futures);
-        rtn.ToExcel("D:/futures.xls");
-    }
-
-    [Test]
-    public async Task get_security_info()
-    {
-        var rtn = await Client_.get_security_info("000001.XSHE");
-    }
-
-    [Test]
-    public async Task get_current_price()
-    {
-        var ret = await Client_.get_current_price(new[] { "AU9999.XSGE", "AG9999.XSGE", "000001.XSHE", "RB2201.XSGE" });
-    }
 
     [Test]
     public async Task get_price()
     {
-        //var rtn5 = await Client_.get_price("AU2210".ToEnumerable(), DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/20"), ETimeFrame.D1, new []{"datetime", "open"}); // 主力连续合约
-        var rtn5 = await Client_.get_price("AU2210".ToEnumerable(), DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/20"), ETimeFrame.D1, new []{"open","close"}); // 主力连续合约
+        //var rtn = await Client_.get_price("AU2210".ToEnumerable(), DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/20"), ETimeFrame.D1, new []{"open","close"}); // 主力连续合约
 
-        //var rtn3 = await Client_.get_price("AU2112.XSGE", ETimeFrame.D1);
+        var rtn2 = await Client_.get_price("AU2210", DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/20"), ETimeFrame.D1, new []{"close"}); // 主力连续合约
 
-        //var rtn2 = await Client_.get_price("000001.XSHE", ETimeFrame.D1);
-        //var rtn  = await Client_.get_price("000001.XSHE", ETimeFrame.D1);
     }
 
-    [Test]
-    public async Task get_price_period()
-    {
-        var rtn = await Client_.get_price_period("RB9999.XSGE", ETimeFrame.m5, ("2019/1/1 9:00:00").ToDateTime(),
-            ("2019/3/31 23:00:00").ToDateTime()); // 主力连续合约
-        //var rtn = await  Client_.get_price_period("RB9999.XSGE", ETimeFrame.m5, DateTime.Parse("2020/7/1 9:00:00"), DateTime.Parse("2020/7/2 23:00:00"));   // 主力连续合约
-
-        var rtn5 = await Client_.get_price_period("AU9999.XSGE", ETimeFrame.D1, DateTime.Parse("2020/8/31 17:43:51"),
-            DateTime.Now); // 主力连续合约
-
-        //var rtn3 = await  Client_.get_price_period("AU2112.XSGE", ETimeFrame.D1);
-
-        //var rtn2 = await  Client_.get_price("000001.XSHE", ETimeFrame.D1);
-        //var rtn = await  Client_.get_price("000001.XSHE", ETimeFrame.D1);
-    }
-
-    [Test]
+  [Test]
     public async Task get_ticks()
     {
-        var rtn = await Client_.get_ticks("ZN2112.XSGE", ("2021/10/7").ToDateTime(),
-            ("2021/10/9").ToDateTime()); // 主力连续合约
+        var rtn = await Client_.get_ticks("AU2210"); //
     }
+
+
+  [Test]
+    public async Task get_live_ticks()
+    {
+        //var rtn = await Client_.get_live_ticks("AU2210"); //
+        //var rtn = await Client_.get_live_ticks("rm2209"); //
+        //var rtn2 = await Client_.get_live_ticks("AU2210", new Tuple<DateTime, DateTime>(DateTime.Parse("2022/08/26 21:00:00"), DateTime.Parse("2022/08/26 22:00:00"))); //
+        var rtn3 = await Client_.get_live_ticks("AU2210", new Tuple<DateTime, DateTime>(DateTime.Parse("2022/08/26 21:00:00"), DateTime.Parse("2022/08/26 21:02:00")), new []{"open", "high"}); //
+    }
+
+
 
     [Test]
     public async Task get_future_contracts()
     {
-        var rtn2 = await Client_.get_future_contracts("AU", DateTime.Parse("2021/8/20"));
+        var rtn2 = await Client_.get_contracts("AU", DateTime.Parse("2022/8/20"));
     }
 
     [Test]
     public async Task get_dominant_future()
     {
-        var rtn2 = await Client_.get_dominant_future("AU");
+       // var rtn = await Client_.get_dominant("AU");
+
+        var rtn2 = await Client_.get_dominant("AU", DateTime.Parse("2022/8/20"), DateTime.Parse("2022/8/20"));
     }
 }
 }
