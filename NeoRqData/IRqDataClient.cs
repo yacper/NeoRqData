@@ -20,7 +20,7 @@ namespace NeoRqData
 		public const string HostUrl      = "https://ricequant.com/";
 		public const string AuthUrl      = "https://rqdata.ricequant.com/auth";
 		public const string ApiUrl       = "https://rqdata.ricequant.com/api";
-		public const string WebsocketUrl = "wss://ws.finnhub.io";
+		public const string WebsocketUrl = "wss://ws.ricequant.com";
 	}
 
 	public enum EConnectionState
@@ -67,6 +67,16 @@ namespace NeoRqData
 		Task<List<Tick>> get_live_ticks(string order_book_id, Tuple<DateTime, DateTime> range = null, IEnumerable<string> fields = null);
 		#endregion
 
+#region websocket realtime
+
+		Task StartWebsocket();
+        void Subscribe(string order_book_id, ETimeFrame tf);
+        //void                Subscribe(IEnumerable<string> order_book_ids);
+        void                UnSubscribe(string order_book_id, ETimeFrame tf);
+        //void                UnSubscribe(IEnumerable<string> order_book_ids);
+
+        //event Action<Trade> OnTrade;                                        // ontrade 更新
+#endregion
 
 		#region 期货
 

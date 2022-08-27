@@ -19,6 +19,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using RLib.Base;
 using RLib.Base.Utils;
+using Websocket.Client;
 
 namespace NeoRqData
 {
@@ -319,6 +320,69 @@ namespace NeoRqData
 		}
 
 
+#region websocket realtime
+
+		// rqdata 实时行情推送
+		//https://www.ricequant.com/doc/rqdata/python/generic-api.html#%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85%E6%8E%A8%E9%80%81
+		public async Task StartWebsocket()
+		{// 
+			var wsUrl = WebsocketUrl
+				.SetQueryParam("token", ApiKey);
+
+			_WebsocketClient = new WebsocketClient(wsUrl.ToUri());
+			_WebsocketClient.ReconnectTimeout = TimeSpan.FromSeconds(30);
+			_WebsocketClient.ReconnectionHappened.Subscribe(info =>
+			System.Diagnostics.Debug.WriteLine($"RqData Reconnection happened, type: {info.Type}")
+			);
+
+			_WebsocketClient.MessageReceived.Subscribe(msg =>
+				{
+					var rtn = msg.Text.ToJsonObj<WebsocketRtn>();
+					switch(rtn.Type)
+					{
+						case EWebsocketRtnType.Error:
+
+							break;
+						case EWebsocketRtnType.Ping:
+
+							break;
+
+						case EWebsocketRtnType.Trade:
+							//rtn.Data.ForEach(p => OnTrade?.Invoke(p));
+							break;
+					}
+
+					System.Diagnostics.Debug.WriteLine($"Message received: {msg}");
+				}
+
+				);
+
+			await _WebsocketClient.Start();
+		}
+		public void Subscribe(string order_book_id, ETimeFrame tf)
+		{
+		SubscribeReq req = new SubscribeReq() { symbol = order_book_id };
+
+            string str = req.ToJson();
+//            string str = "{\"type\":\"subscribe\",\"symbol\":\"BINANCE:BTCUSDT\"}";
+            byte[] bsend = System.Text.Encoding.UTF8.GetBytes(str);
+            _WebsocketClient.Send(bsend); 
+            System.Diagnostics.Debug.WriteLine(str);
+
+		}
+        //public void                Subscribe(IEnumerable<string> order_book_ids);
+        public void UnSubscribe(string order_book_id, ETimeFrame tf)
+        {
+
+        }
+        //public void                UnSubscribe(IEnumerable<string> order_book_ids);
+
+        //event Action<Trade> OnTrade;                                        // ontrade 更新
+#endregion
+
+
+
+
 		#region 期货
 
 		//获取某期货品种在指定日期下的可交易合约标的列表
@@ -385,5 +449,7 @@ namespace NeoRqData
 		protected string _LastErrMsg;
 
 		protected EConnectionState ConnectionState_;
+
+        protected WebsocketClient _WebsocketClient;
 	}
 }
