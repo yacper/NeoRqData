@@ -238,10 +238,11 @@ namespace NeoRqData
 		{
 			try
 			{
+
 				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
 				{
 					method      = "get_price",
-					order_book_ids        = order_book_id,
+					order_book_ids        = order_book_id.ToUpper(),
 					start_date = start_date.ToString(),
 					end_date = end_date.ToString(),
 					frequency = frequency.ToResolutionString(),
@@ -274,7 +275,7 @@ namespace NeoRqData
 				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
 				{
 					method         = "get_ticks",
-					order_book_id = order_book_id,
+					order_book_id = order_book_id.ToUpper(),
 				}).ReceiveStream();
 				//}).ReceiveString();
 
@@ -298,7 +299,7 @@ namespace NeoRqData
 				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
 				{
 					method         = "get_live_ticks",
-					order_book_ids = order_book_id,
+					order_book_ids = order_book_id.ToUpper(),
 					start_dt     = range != null?range.Item1.ToString():null,
 					end_dt       =range != null?range.Item2.ToString():null,
 					fields = fields
@@ -330,7 +331,7 @@ namespace NeoRqData
 				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
 				{
 					method         = "futures.get_contracts",
-					underlying_symbol = underlying_symbol,
+					underlying_symbol = underlying_symbol.ToUpper(),
 					date     = date != null?date.Value.ToString():null,
 					//}).ReceiveStream();
 				}).ReceiveString();
@@ -354,7 +355,7 @@ namespace NeoRqData
 				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
 				{
 					method         = "futures.get_dominant",
-					underlying_symbol = underlying_symbol,
+					underlying_symbol = underlying_symbol.ToUpper(),
 					start_date     = start_date != null?start_date.Value.ToString():null,
 					end_date     = end_date != null?end_date.Value.ToString():null,
 					rule =rule,

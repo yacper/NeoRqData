@@ -18,15 +18,15 @@ namespace NeoRqData
 {
 public enum ETimeFrame
 {
-    m1,
-    m5,
-    m15,
-    m30,
-    m60,
-    m120,
-    D1,
-    W1,
-    M1
+    m1 = 2,
+    m5 = 8,
+    m15 = 16,
+    m30 = 32,
+    m60= 64,
+    m120 = 128,
+    D1=1024,
+    W1=2048,
+    M1 =4096
 }
 
 public enum EAdjustType

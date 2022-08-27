@@ -68,7 +68,7 @@ public class Tests
     {
         //var rtn = await Client_.get_price("AU2210".ToEnumerable(), DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/20"), ETimeFrame.D1, new []{"open","close"}); // 主力连续合约
 
-        var rtn3 = await Client_.get_price("AU2210", DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/02"), ETimeFrame.m1, new []{"close"}); // 主力连续合约
+        var rtn3 = await Client_.get_price("au2210", DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/02"), ETimeFrame.m1); // 主力连续合约
 	    Debug.WriteLine(rtn3.Dump());
 
 
