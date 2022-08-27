@@ -35,26 +35,22 @@ namespace NeoRqData
 	public interface IRqDataClient
 	{
 		string ApiKey { get; }
-		int CallsPerMin { get; } // api calss per min
-
-		int CallsInScope { get; }
-
+	
 		string LastErrMsg { get; }
 
 		EConnectionState ConnectionState { get; }
 
 		Task<bool> Connect(string user = null, string pwd = null);
 
-		Task<int> get_query_count();
+		Task<string>    info();		// 无用
+		Task<QuoteInfo> get_quota(); // 获取用户配额信息
 
 		#region Instrumnet
-
 		Task<List<SecurityInfo>> all_instruments(ESymbolType type, EMarket market = EMarket.cn, DateTime? date = null);
 
 		// todo:这个函数目前测试返回有问题
-		Task<SecurityInfo> instruments(string order_book_id);
+		Task<SecurityInfo> instruments(string order_book_id);       // 
 		Task<List<SecurityInfo>> instruments(IEnumerable<string> order_book_ids);
-
 		#endregion
 
 		#region 历史行情
@@ -83,7 +79,7 @@ namespace NeoRqData
 		//code: 期货合约品种，如 AG (白银)
 		// 默认是 rule=0,采用最大昨仓为当日主力合约，每个合约只能做一次主力合约，不会重复出现。针对股指期货，只在当月和次月选择主力合约。当rule =1 时，主力合约的选取只考虑最大昨仓这个条件。
 		//默认rank =1。1-主力合约，2-次主力合约，3-次次主力合约。'2','3' 仅对 IC、IH、IF 合约，且 rule =1 时生效
-		Task<List<DominantFuture>> get_dominant(string underlying_symbol, DateTime? start_date =null, DateTime? end_date =null , int rule =0, int rank = 1);
+		Task<List<DominantFuture>> get_dominant(string underlying_symbol, DateTime? start_date = null, DateTime? end_date = null, int rule = 0, int rank = 1);
 
 		#endregion
 	}

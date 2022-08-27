@@ -53,7 +53,10 @@ public enum EExchange
 	SHFE,
 	CZCE,
 	CFFEX,
-	INE 
+	INE,
+
+	XSHE,		// 深圳
+
 }
 
 
@@ -100,39 +103,79 @@ public static class TimeFrame
 		Repo    //沪深两市交易所交易的回购合约
 	}
 
-public enum EProduct
+	public enum EFutureProduct	// 期货类型
 	{
-Commodity,
-Index,		// 指数
-Government			// 国债
+		Commodity,
+		Index,      // 指数
+		Government          // 国债
 	}
 
 
-	//A0303,A,0.0,豆一0303,0.05,2003-03-14,Future,a0303,DCE,Commodity,10.0,1.0,"21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",2002-03-15,油脂,2003-03-14,null
+	// 期货		order_book_id,type,exchange,symbol,underlying_symbol,underlying_order_book_id,product,maturity_date,de_listed_date,listed_date,round_lot,margin_rate,contract_multiplier,trading_code,market_tplus,trading_hours,industry_name 
+	// 期货		order_book_id,	type,	exchange,	symbol,		underlying_symbol,underlying_order_book_id,	product,	maturity_date,	de_listed_date, listed_date,	round_lot,	margin_rate, contract_multiplier, trading_code, market_tplus, trading_hours,									industry_name
+	//			RB2210,			Future,	SHFE,		螺纹钢2210,	RB,											,Commodity,	2022-10-17,		2022-10-17,		2021-10-18,		1,			0.13,			10,				  rb2210,		0,			  "21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",  焦煤钢矿
+	// 股票/指数 order_book_id,industry_code,market_tplus,symbol,special_type,exchange,status,type,de_listed_date,listed_date,sector_code_name,abbrev_symbol,sector_code,round_lot,trading_hours,board_type,industry_name,issue_price,trading_code 
 	public class SecurityInfo
 	{
 		public string order_book_id { get; set; }
-		public string underlying_symbol { get; set; }
-		public double market_tplus { get; set; }
 		public string symbol { get; set; }
-		public double margin_rate { get; set; }
-		public string maturity_date { get; set; }
 		public ESymbolType type { get; set; }
-		public string trading_code { get; set; }
 		public EExchange exchange { get; set; }
-		public EProduct product { get; set; }
-		public double contract_multiplier { get; set; }
+		public string trading_code { get; set; }
+		public double market_tplus { get; set; }
 		public double round_lot { get; set; }
 		public string trading_hours { get; set; }
 		public string listed_date { get; set; }
-		public string industry_name { get; set; }
 		public string de_listed_date { get; set; }
+		public string industry_name { get; set; }
+
+#region 期货
+		public string underlying_symbol { get; set; }		// 期货底层代码 RB
 		public string underlying_order_book_id { get; set; }
+		public EFutureProduct product { get; set; }
+		public string maturity_date { get; set; }
+		public double margin_rate { get; set; }
+		public double contract_multiplier { get; set; }
+#endregion
+
+#region 股票/指数
+		public string industry_code { get; set; }
+		public string special_type { get; set; }
+		public string status { get; set; }
+		public string sector_code_name { get; set; }
+		public string abbrev_symbol { get; set; }
+		public string sector_code { get; set; }
+		public string board_type { get; set; }
+		public double issue_price { get; set; }
+#endregion
 
 		public override string ToString() { return $"{type,-18} {order_book_id,-10} {symbol,14}"; }
 	}
 
-public class DominantFuture
+	public enum license_type
+	{
+		TRIAL,// 表示试用账户,
+		FULL, //表示付费用户
+		OTHER
+	}
+
+public class KeyValue
+{
+		public string name { get; set; }
+		public string value { get; set; }
+
+}
+
+	public class QuoteInfo
+	{
+		public double bytes_limit { get; set; }  // 每日流量使用上限（单位为字节），如为 0 则表示不受限
+
+		public double bytes_used { get; set; } // 当日已用流量（单位为字节）
+		public long remaining_days { get; set; } // 剩余期限（单位为天）
+		public license_type license_type { get; set; }	
+	}
+
+	public class DominantFuture
 {
 	public     DateTime date     { get; set; }
 		public string   dominant { get; set; }
