@@ -28,8 +28,13 @@ public class Tests
         //Client_ = new RqDataClient("15755006301", "Welcome123");
 
         Client_ = new RqDataClient("18621301957", "hello@123", "LM5xlOCD4vY06OAMcR3yFlbD95uV8nkBmdu7RC4yLhmF--FjE_P3w0v_hPKch1LFaDMM_ZdIBv4zP10XX-oaOh43Xm2c5vMdR4-4w6zi7IplJ_jTssuCJO1z_5iZcZWyuqrVZswe3qzOcOlEDVv3K4Z35zcaaUz3_QviC9T8b6Y=gkxCS1k7PDTWIOGNtA6UPrMaYILpjczvxT3USeAhON9QNjU2zyAk1gMaGjgaws-UUFcQIKFQEBaboQnCQwHpJpRPVy5oD2EVPo2cImoZ4Pnbm9wkgVNDGYR0wbkaHbsf0x4AAxTluyrC33yKW_tRk565CrurR83URsHKH1NpAnA=");
+			Client_.OnRspAuthEvent += (s, e) =>
+			{
 
-        bool ret = await Client_.Connect();
+				Debug.WriteLine(e.Dump());
+			};
+
+			bool ret = await Client_.Connect();
         ret.Should().Be(true);
         Debug.WriteLine(Client_.Dump());
     }
@@ -117,7 +122,7 @@ public class Tests
     }
 
     [Test]
-    public async Task Websocket()
+    public async Task Websocket_tick()
     {
 	    var rt = await Client_.Subscribe("AU2210", ETimeFrame.tick);
 	    Debug.WriteLine(rt.Dump());
@@ -131,7 +136,20 @@ public class Tests
 
     }
 
+    [Test]
+    public async Task Websocket_bar()
+    {
+		var rt = await Client_.Subscribe("AU2210", ETimeFrame.m1);
+	    Debug.WriteLine(rt.Dump());
 
+	    Client_.OnBarEvent += (s, e) =>
+	    {
+	        Debug.WriteLine(e.Dump());
+	    };
 
-}
+       await Task.Delay(1000000);
+
+    }
+
+		}
 }
