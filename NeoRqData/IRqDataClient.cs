@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace NeoRqData
 		public const string HostUrl      = "https://ricequant.com/";
 		public const string AuthUrl      = "https://rqdata.ricequant.com/auth";
 		public const string ApiUrl       = "https://rqdata.ricequant.com/api";
-		public const string WebsocketUrl = "wss://ws.ricequant.com";
+		public const string WebsocketUrl = "wss://rqdata.ricequant.com/live_md";
 	}
 
 	public enum EConnectionState
@@ -34,13 +35,14 @@ namespace NeoRqData
 
 	public interface IRqDataClient
 	{
-		string ApiKey { get; }
+		string Token { get; }
 	
 		string LastErrMsg { get; }
 
-		EConnectionState ConnectionState { get; }
+		EConnectionState     ConnectionState { get; }
+        event EventHandler<string> OnErrorEvent;
 
-		Task<bool> Connect(string user = null, string pwd = null);
+		Task<bool> Connect(string user = null, string pwd = null, string licenseKey = null);
 
 		Task<string>    info();		// 无用
 		Task<QuoteInfo> get_quota(); // 获取用户配额信息
@@ -68,14 +70,20 @@ namespace NeoRqData
 		#endregion
 
 #region websocket realtime
+        event EventHandler<AuthRsp> OnRspAuthEvent;
 
-		Task StartWebsocket();
-        void Subscribe(string order_book_id, ETimeFrame tf);
-        //void                Subscribe(IEnumerable<string> order_book_ids);
-        void                UnSubscribe(string order_book_id, ETimeFrame tf);
-        //void                UnSubscribe(IEnumerable<string> order_book_ids);
+        event EventHandler<SubscribeRsp>                   OnRspSubscribeEvent;
+        event EventHandler<UnSubscribeRsp>                 OnRspUnSubscribeEvent;
+		public ReadOnlyObservableCollection<RqDataChannel> Subscribed { get; }
 
-        //event Action<Trade> OnTrade;                                        // ontrade 更新
+        event EventHandler<RtTick> OnTickEvent;
+        event EventHandler<RtTick> OnBarEvent;
+
+
+        Task<bool> Subscribe(string order_book_id, ETimeFrame tf);
+        Task<List<RqDataChannel>> Subscribe(IEnumerable<RqDataChannel> channels);
+        Task       UnSubscribe(string order_book_id, ETimeFrame tf);
+        Task       UnSubscribe(IEnumerable<RqDataChannel> channels);
 #endregion
 
 		#region 期货

@@ -8,6 +8,7 @@
 *********************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -25,15 +26,15 @@ namespace NeoRqData
 {
 	public partial class RqDataClient:ObservableObject, IRqDataClient
 	{
-		public RqDataClient(string acccount, string pwd, int callsPerMin = 300)
+		public RqDataClient(string acccount, string pwd, string licenseKey, int callsPerMin = 300)
 		{
-			Acccount_ = acccount;
-			Pwd_ = pwd;
+			Acccount   = acccount;
+			Pwd        = pwd;
+            LicenseKey = licenseKey;
 
 			CallsPerMin = callsPerMin;
 		}
 
-		public string ApiKey => ApiKey_;
 		public int CallsPerMin { get; set; }
 
 		public int CallsInScope
@@ -41,7 +42,9 @@ namespace NeoRqData
 			get { return _Calls.Count; }
 		}
 
-		protected List<DateTime> _Calls = new List<DateTime>();
+        public int TimeoutMilliseconds { get; set; } = 5000;
+
+        protected List<DateTime> _Calls = new List<DateTime>();
 		protected async Task _CheckCalls()
 		{
 			DateTime now = DateTime.Now;
@@ -77,16 +80,20 @@ namespace NeoRqData
 			}
 		}
 
+        public event EventHandler<string> OnErrorEvent;
+
 		public EConnectionState ConnectionState { get => ConnectionState_; set => SetProperty(ref ConnectionState_, value); }
 
-		public async Task<bool> Connect(string user = null, string pwd = null)
+		public async Task<bool> Connect(string user = null, string pwd = null, string licenseKey = null)
 		{
 			if(ConnectionState == EConnectionState.Disconnected)
 			{
 				if(user != null)
-					Acccount_ = user;
+					Acccount = user;
 				if(pwd != null)
-					Pwd_ = pwd;
+					Pwd = pwd;
+                if (licenseKey != null)
+                    LicenseKey = licenseKey;
 
 				//error:auth failed
 				//认证失败
@@ -94,23 +101,27 @@ namespace NeoRqData
 
 				var ret = await AuthUrl.PostJsonAsync(new
 				{
-					user_name = Acccount_,
-					password  = Pwd_
+					user_name = Acccount,
+					password  = Pwd
 				}).ReceiveString();
 
 				if(ret.Contains("error"))
 				{
-					LastErrMsg = ret;
+					OnErrorEvent?.Invoke(this, ret);
 
 					ConnectionState = EConnectionState.Disconnected;
 
 					return false;
 				}
 
-				ApiKey_ = ret;
+				Token = ret;
 
-				ConnectionState = EConnectionState.Connected;
-			}
+                var r2 = await StartWebsocket();
+                if (r2)
+                    ConnectionState = EConnectionState.Connected;
+                else
+                    ConnectionState = EConnectionState.Disconnected;
+            }
 
 			return ConnectionState == EConnectionState.Connected;
 		}
@@ -125,7 +136,7 @@ namespace NeoRqData
 
 			try
 			{
-				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+				var ret = await ApiUrl.WithHeader("token", Token).PostJsonAsync(new
 				{
 					method         = "info",
 					//}).ReceiveStream();
@@ -135,7 +146,7 @@ namespace NeoRqData
 			}
 			catch(Exception e)
 			{
-				LastErrMsg = e.ToString();
+                OnErrorEvent?.Invoke(this, e.ToString());
 				return "";
 			}
 		}
@@ -150,7 +161,7 @@ namespace NeoRqData
                 license_type,OTHER
              */
 
-			var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+			var ret = await ApiUrl.WithHeader("token", Token).PostJsonAsync(new
 			{
 				method         = "user.get_quota",
 			}).ReceiveStream();
@@ -184,7 +195,7 @@ namespace NeoRqData
 		{
 			try
 			{
-				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+				var ret = await ApiUrl.WithHeader("token", Token).PostJsonAsync(new
 				{
 					method         = "all_instruments",
 					type = type.ToString(),
@@ -199,7 +210,7 @@ namespace NeoRqData
 			}
 			catch(Exception e)
 			{
-				LastErrMsg = e.ToString();
+                OnErrorEvent?.Invoke(this, e.ToString());
 				return new();
 			}
 		}
@@ -216,7 +227,7 @@ namespace NeoRqData
 				// 必须用大写，否则不识别
 				var idUppers = order_book_ids.Select(p => p.ToUpper());
 
-				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+				var ret = await ApiUrl.WithHeader("token", Token).PostJsonAsync(new
 				{
 					method         = "instruments",
 					order_book_ids = idUppers,
@@ -228,7 +239,7 @@ namespace NeoRqData
 			}
 			catch(Exception e)
 			{
-				LastErrMsg = e.ToString();
+                OnErrorEvent?.Invoke(this, e.ToString());
 				return new();
 			}
 		}
@@ -240,7 +251,7 @@ namespace NeoRqData
 			try
 			{
 
-				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+				var ret = await ApiUrl.WithHeader("token", Token).PostJsonAsync(new
 				{
 					method      = "get_price",
 					order_book_ids        = order_book_id.ToUpper(),
@@ -264,7 +275,7 @@ namespace NeoRqData
 			}
 			catch(Exception e)
 			{
-				LastErrMsg = e.ToString();
+                OnErrorEvent?.Invoke(this, e.ToString());
 				return new();
 			}
 		}
@@ -273,7 +284,7 @@ namespace NeoRqData
 		{
 			try
 			{
-				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+				var ret = await ApiUrl.WithHeader("token", Token).PostJsonAsync(new
 				{
 					method         = "get_ticks",
 					order_book_id = order_book_id.ToUpper(),
@@ -286,7 +297,7 @@ namespace NeoRqData
 			}
 			catch(Exception e)
 			{
-				LastErrMsg = e.ToString();
+                OnErrorEvent?.Invoke(this, e.ToString());
 				return new();
 			}
 		}
@@ -297,7 +308,7 @@ namespace NeoRqData
 		{
 			try
 			{
-				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+				var ret = await ApiUrl.WithHeader("token", Token).PostJsonAsync(new
 				{
 					method         = "get_live_ticks",
 					order_book_ids = order_book_id.ToUpper(),
@@ -314,20 +325,27 @@ namespace NeoRqData
 			}
 			catch(Exception e)
 			{
-				LastErrMsg = e.ToString();
+                OnErrorEvent?.Invoke(this, e.ToString());
+
 				return new();
 			}
 		}
 
 
 #region websocket realtime
+        public event EventHandler<AuthRsp> OnRspAuthEvent;
+        public event EventHandler<SubscribeRsp> OnRspSubscribeEvent;
+        public event EventHandler<UnSubscribeRsp> OnRspUnSubscribeEvent;
+
+
 
 		// rqdata 实时行情推送
 		//https://www.ricequant.com/doc/rqdata/python/generic-api.html#%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85%E6%8E%A8%E9%80%81
-		public async Task StartWebsocket()
+		public async Task<bool> StartWebsocket()
 		{// 
-			var wsUrl = WebsocketUrl
-				.SetQueryParam("token", ApiKey);
+            var wsUrl = new Url(WebsocketUrl);
+            //var wsUrl = WebsocketUrl;
+				//.SetQueryParam("token", Token);
 
 			_WebsocketClient = new WebsocketClient(wsUrl.ToUri());
 			_WebsocketClient.ReconnectTimeout = TimeSpan.FromSeconds(30);
@@ -335,49 +353,167 @@ namespace NeoRqData
 			System.Diagnostics.Debug.WriteLine($"RqData Reconnection happened, type: {info.Type}")
 			);
 
-			_WebsocketClient.MessageReceived.Subscribe(msg =>
-				{
-					var rtn = msg.Text.ToJsonObj<WebsocketRtn>();
-					switch(rtn.Type)
-					{
-						case EWebsocketRtnType.Error:
+            _WebsocketClient.MessageReceived.Subscribe(msg =>
+                                                       {
+                                                           var rtnStr = msg.Text;
+                                                           if (rtnStr.Contains("Error"))
+                                                           {
+                                                               OnErrorEvent?.Invoke(this, rtnStr);
+                                                               return;
+                                                           }
 
-							break;
-						case EWebsocketRtnType.Ping:
+                                                           var rspBase = rtnStr.ToJsonObj<RqWebsocketRsp>();
+                                                           switch (rspBase.Type)
+                                                           {
+                                                               case ERqWebsocketActionType.auth_reply:
+                                                                   {
+                                                                       var rsp = rtnStr.ToJsonObj<AuthRsp>();
+                                                                       OnRspAuthEvent?.Invoke(this, rsp);
+                                                                   }
+                                                                   break;
+                                                               case ERqWebsocketActionType.subscribe_reply:
+                                                                   {
+                                                                       var rsp = rtnStr.ToJsonObj<SubscribeRsp>();
+                                                                       OnRspSubscribeEvent?.Invoke(this, rsp);
+                                                                   }
+                                                                   break;
+                                                               case ERqWebsocketActionType.unsubscribe_reply:
+                                                                   {
+                                                                       var rsp = rtnStr.ToJsonObj<UnSubscribeRsp>();
+                                                                       OnRspUnSubscribeEvent?.Invoke(this, rsp);
+                                                                   }
+                                                                   break;
+                                                           }
 
-							break;
+                                                           OnErrorEvent?.Invoke(this, $"Unknown Msg rcv:{rtnStr}");
 
-						case EWebsocketRtnType.Trade:
-							//rtn.Data.ForEach(p => OnTrade?.Invoke(p));
-							break;
-					}
+                                                           System.Diagnostics.Debug.WriteLine($"Unknown Msg rcv:{rtnStr}");
+                                                       }
 
-					System.Diagnostics.Debug.WriteLine($"Message received: {msg}");
-				}
-
-				);
+                                                      );
 
 			await _WebsocketClient.Start();
-		}
-		public void Subscribe(string order_book_id, ETimeFrame tf)
-		{
-		SubscribeReq req = new SubscribeReq() { symbol = order_book_id };
+
+            await Task.Delay(1000);
+
+            AuthReq req = new AuthReq()
+            {
+				request_id = GetNextReqId().ToString(),
+                license =LicenseKey
+            };
 
             string str = req.ToJson();
 //            string str = "{\"type\":\"subscribe\",\"symbol\":\"BINANCE:BTCUSDT\"}";
             byte[] bsend = System.Text.Encoding.UTF8.GetBytes(str);
-            _WebsocketClient.Send(bsend); 
-            System.Diagnostics.Debug.WriteLine(str);
+            _WebsocketClient.Send(bsend);
 
-		}
-        //public void                Subscribe(IEnumerable<string> order_book_ids);
-        public void UnSubscribe(string order_book_id, ETimeFrame tf)
-        {
-
+            return true;
         }
-        //public void                UnSubscribe(IEnumerable<string> order_book_ids);
 
-        //event Action<Trade> OnTrade;                                        // ontrade 更新
+        public ReadOnlyObservableCollection<RqDataChannel> Subscribed => new(Subscribed_);
+        public event EventHandler<RtTick> OnTickEvent;
+        public event EventHandler<RtTick> OnBarEvent;
+
+
+        public async Task<bool> Subscribe(string order_book_id, ETimeFrame tf)
+        {
+            var ch = new RqDataChannel(order_book_id, tf);
+            var rt = await Subscribe(new[] { ch });
+            return rt.Any(p => p == ch);
+        }
+
+        public Task<List<RqDataChannel>> Subscribe(IEnumerable<RqDataChannel> channels)
+        {
+            if (ConnectionState != EConnectionState.Connected)
+                return Task.FromResult<List<RqDataChannel>>(new ());
+
+            var already = Subscribed_.Except(channels);  // 已经订阅的
+            var ongoing = channels.Except(Subscribed);	// 想要订阅的
+            if (!ongoing.Any())
+                return Task.FromResult<List<RqDataChannel>>(new ());
+
+            var                        reqId                 = GetNextReqId().ToString();
+            var                        taskSource            = new TaskCompletionSource<List<RqDataChannel>>();
+            EventHandler<SubscribeRsp> onRspSubscribeHandler = null;
+            onRspSubscribeHandler = (sender, e) =>
+            {
+                if (e.request_id == reqId)
+                {
+                    OnRspSubscribeEvent -= onRspSubscribeHandler;
+
+					Subscribed_.AddRange(e.subscribed);
+
+                    taskSource.TrySetResult(e.subscribed.Union(already).ToList());
+                }
+            };
+
+
+            SubscribeReq req = new SubscribeReq()
+            {
+				request_id = reqId,
+                channels = new List<RqDataChannel>(ongoing)
+            };
+            string str = req.ToJson();
+//            string str = "{\"type\":\"subscribe\",\"symbol\":\"BINANCE:BTCUSDT\"}";
+            byte[] bsend = System.Text.Encoding.UTF8.GetBytes(str);
+            _WebsocketClient.Send(bsend);
+
+            OnRspSubscribeEvent += onRspSubscribeHandler;
+
+            CancellationTokenSource tokenSource = new CancellationTokenSource(TimeoutMilliseconds);
+            tokenSource.Token.Register(() =>
+            {
+                OnRspSubscribeEvent -= onRspSubscribeHandler;
+                taskSource.TrySetCanceled();
+            });
+
+            return taskSource.Task;
+        }
+
+        public Task UnSubscribe(string order_book_id, ETimeFrame tf) { return UnSubscribe(new[] { new RqDataChannel(order_book_id, tf) }); }
+        public Task UnSubscribe(IEnumerable<RqDataChannel> channels)
+        {
+            if (ConnectionState != EConnectionState.Connected)
+                return Task.CompletedTask;
+
+            var                        reqId                 = GetNextReqId().ToString();
+            var                        taskSource            = new TaskCompletionSource<List<RqDataChannel>>();
+            EventHandler<UnSubscribeRsp> onRspUnSubscribeHandler = null;
+            onRspUnSubscribeHandler = (sender, e) =>
+            {
+                if (e.request_id == reqId)
+                {
+                    OnRspUnSubscribeEvent -= onRspUnSubscribeHandler;
+
+                    taskSource.TrySetResult(e.unsubscribed);
+                }
+            };
+
+
+            UnSubscribeReq req = new UnSubscribeReq()
+            {
+                request_id = reqId,
+                channels   = new List<RqDataChannel>(channels)
+            };
+            string str = req.ToJson();
+//            string str = "{\"type\":\"subscribe\",\"symbol\":\"BINANCE:BTCUSDT\"}";
+            byte[] bsend = System.Text.Encoding.UTF8.GetBytes(str);
+            _WebsocketClient.Send(bsend);
+
+            OnRspUnSubscribeEvent += onRspUnSubscribeHandler;
+
+            CancellationTokenSource tokenSource = new CancellationTokenSource(TimeoutMilliseconds);
+            tokenSource.Token.Register(() =>
+            {
+                OnRspUnSubscribeEvent -= onRspUnSubscribeHandler;
+                taskSource.TrySetCanceled();
+            });
+
+            return taskSource.Task;
+        }
+
+		public long GetNextReqId()=>Interlocked.Increment(ref ReqId_);
+
 #endregion
 
 
@@ -392,7 +528,7 @@ namespace NeoRqData
 		{
 			try
 			{
-				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+				var ret = await ApiUrl.WithHeader("token", Token).PostJsonAsync(new
 				{
 					method         = "futures.get_contracts",
 					underlying_symbol = underlying_symbol.ToUpper(),
@@ -407,7 +543,7 @@ namespace NeoRqData
 			}
 			catch(Exception e)
 			{
-				LastErrMsg = e.ToString();
+                OnErrorEvent?.Invoke(this, e.ToString());
 				return new();
 			}
 		}
@@ -416,7 +552,7 @@ namespace NeoRqData
 		{
 			try
 			{
-				var ret = await ApiUrl.WithHeader("token", ApiKey).PostJsonAsync(new
+				var ret = await ApiUrl.WithHeader("token", Token).PostJsonAsync(new
 				{
 					method         = "futures.get_dominant",
 					underlying_symbol = underlying_symbol.ToUpper(),
@@ -435,21 +571,25 @@ namespace NeoRqData
 			}
 			catch(Exception e)
 			{
-				LastErrMsg = e.ToString();
+                OnErrorEvent?.Invoke(this, e.ToString());
 				return new();
 			}
 		}
 		#endregion
 
 
-		protected string ApiKey_;
-		protected string Acccount_;
-		protected string Pwd_;
+		public string Token     { get; set; }	// 动态获取
+		public string Acccount   { get; set; }
+		public string Pwd        { get; set; }
+		public string LicenseKey { get; set; }  // 用于实时数据
 
 		protected string _LastErrMsg;
 
 		protected EConnectionState ConnectionState_;
 
         protected WebsocketClient _WebsocketClient;
-	}
+        protected long            ReqId_ = 0;
+
+        protected ObservableCollection<RqDataChannel> Subscribed_;
+    }
 }

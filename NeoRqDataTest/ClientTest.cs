@@ -24,7 +24,9 @@ public class Tests
     [OneTimeSetUp]
     public async Task Setup()
     {
-        Client_ = new RqDataClient("15755006301", "Welcome123");
+        //Client_ = new RqDataClient("15755006301", "Welcome123");
+
+        Client_ = new RqDataClient("18621301957", "hello@123", "LM5xlOCD4vY06OAMcR3yFlbD95uV8nkBmdu7RC4yLhmF--FjE_P3w0v_hPKch1LFaDMM_ZdIBv4zP10XX-oaOh43Xm2c5vMdR4-4w6zi7IplJ_jTssuCJO1z_5iZcZWyuqrVZswe3qzOcOlEDVv3K4Z35zcaaUz3_QviC9T8b6Y=gkxCS1k7PDTWIOGNtA6UPrMaYILpjczvxT3USeAhON9QNjU2zyAk1gMaGjgaws-UUFcQIKFQEBaboQnCQwHpJpRPVy5oD2EVPo2cImoZ4Pnbm9wkgVNDGYR0wbkaHbsf0x4AAxTluyrC33yKW_tRk565CrurR83URsHKH1NpAnA=");
 
         bool ret = await Client_.Connect();
         ret.Should().Be(true);
@@ -111,5 +113,18 @@ public class Tests
         var rtn2 = await Client_.get_dominant("AU", DateTime.Parse("2022/8/20"), DateTime.Parse("2022/8/20"));
 	    Debug.WriteLine(rtn2.Dump());
     }
+
+    [Test]
+    public async Task Websocket()
+    {
+       // var rtn = await Client_.get_dominant("AU");
+
+       //await Client_.StartWebsocket();
+
+       await Task.Delay(1000000);
+    }
+
+
+
 }
 }

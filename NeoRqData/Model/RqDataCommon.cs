@@ -18,6 +18,8 @@ namespace NeoRqData
 {
 public enum ETimeFrame
 {
+    tick = 1,
+
     m1 = 2,
     m5 = 8,
     m15 = 16,
@@ -66,6 +68,8 @@ public static class TimeFrame
     {
         switch (tf)
         {
+            case ETimeFrame.tick:
+                return "tick";
             case ETimeFrame.m1:
                 return "1m";
             case ETimeFrame.m5:
@@ -86,7 +90,36 @@ public static class TimeFrame
                 return "1M";
         }
 
-        return "1d";
+        throw new NotImplementedException();
+    }
+
+    public static ETimeFrame FromString(string str)
+    {
+        switch (str)
+        {
+            case "tick":
+                return ETimeFrame.tick;
+            case "1m":
+                return ETimeFrame.m1;
+            case "5m":
+                return ETimeFrame.m5;
+            case "15m":
+                return ETimeFrame.m15;
+            case "30m":
+                return ETimeFrame.m30;
+            case "60m":
+                return ETimeFrame.m60;
+            case "120m":
+                return ETimeFrame.m120;
+            case "1d":
+                return ETimeFrame.D1;
+            case "1w":
+                return ETimeFrame.W1;
+            case "1M":
+                return ETimeFrame.M1;
+        }
+
+        throw new NotImplementedException();
     }
 }
 
@@ -297,10 +330,69 @@ public class Bar
 	}
 
 
-
-
-	public static class RqDataCommon
+public static class RqDataCommon
 {
     public static string ToJqDate(this DateTime dt) { return dt.ToString("yyyy-MM-dd"); }
 }
+
+
+public class RqDataChannel
+{
+    public override string ToString()
+    {
+        if (Tf == ETimeFrame.tick)
+            return $"tick_{order_book_id}";
+		else
+            return $"bar_{order_book_id}_{Tf.ToResolutionString()}";
+    }
+
+    public static implicit operator RqDataChannel(string str)
+    {
+        var ss = str.Split('_');
+        if (ss.Length == 2)
+            return new RqDataChannel() { order_book_id = ss[1], Tf = ETimeFrame.tick };
+		else
+            return new RqDataChannel() { order_book_id = ss[1], Tf = TimeFrame.FromString(ss[2]) };
+    }
+
+
+    public static bool operator ==(RqDataChannel l, RqDataChannel r)
+    {
+        if (l.order_book_id == r.order_book_id)
+            return l.Tf == r.Tf;
+        return false;
+    }
+
+    public static bool operator !=(RqDataChannel vector1, RqDataChannel vector2) { return !(vector1 == vector2); }
+
+    public static bool Equals(RqDataChannel l, RqDataChannel r)
+    {
+        if (l.order_book_id.Equals(r.order_book_id))
+            return l.Tf.Equals(r.Tf);
+        return false;
+    }
+
+    public override bool Equals(object o)
+    {
+        if (o == null || !(o is RqDataChannel))
+            return false;
+        return RqDataChannel.Equals(this, (RqDataChannel)o);
+    }
+
+    public bool Equals(RqDataChannel value) { return RqDataChannel.Equals(this, value); }
+
+    public override int GetHashCode() { return order_book_id == null ? Tf.GetHashCode() : order_book_id.GetHashCode() ^ Tf.GetHashCode(); }
+
+
+    public RqDataChannel(){}
+    public RqDataChannel(string order_book_id, ETimeFrame tf)
+    {
+        order_book_id = order_book_id;
+        Tf            = tf;
+    }
+
+    public string     order_book_id { get; set; }
+    public ETimeFrame Tf            { get; set; }
+}
+
 }
