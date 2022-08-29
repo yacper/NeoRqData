@@ -77,7 +77,7 @@ namespace NeoRqData
 		public ReadOnlyObservableCollection<RqDataChannel> Subscribed { get; }
 
         event EventHandler<RtTick> OnTickEvent;
-        event EventHandler<RtTick> OnBarEvent;
+        event EventHandler<RtBar> OnBarEvent;
 
 
         Task<bool> Subscribe(string order_book_id, ETimeFrame tf);

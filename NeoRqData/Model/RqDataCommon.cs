@@ -16,112 +16,112 @@ using System.Threading.Tasks;
 
 namespace NeoRqData
 {
-public enum ETimeFrame
-{
-    tick = 1,
+	public enum ETimeFrame
+	{
+		tick = 1,
 
-    m1 = 2,
-    m5 = 8,
-    m15 = 16,
-    m30 = 32,
-    m60= 64,
-    m120 = 128,
-    D1=1024,
-    W1=2048,
-    M1 =4096
-}
+		m1 = 2,
+		m5 = 8,
+		m15 = 16,
+		m30 = 32,
+		m60= 64,
+		m120 = 128,
+		D1=1024,
+		W1=2048,
+		M1 =4096
+	}
 
-public enum EAdjustType
-{
-// 两组前后复权方式仅 volume 字段处理不同，其他字段相同。
-// 其中'pre'、'post'中的 volume 采用拆分因子调整；
-// 'pre_volume'、'post_volume'中的 volume 采用复权因子调整。
+	public enum EAdjustType
+	{
+		// 两组前后复权方式仅 volume 字段处理不同，其他字段相同。
+		// 其中'pre'、'post'中的 volume 采用拆分因子调整；
+		// 'pre_volume'、'post_volume'中的 volume 采用复权因子调整。
 
-    none = 0,   // 不复权，
-    pre,        // 前复权
-    post,       // 后复权
-    pre_volume, // 前复权
-    post_volume // 后复权
-}
+		none = 0,   // 不复权，
+		pre,        // 前复权
+		post,       // 后复权
+		pre_volume, // 前复权
+		post_volume // 后复权
+	}
 
-public enum EMarket
-{
-    cn = 0
-}
+	public enum EMarket
+	{
+		cn = 0
+	}
 
-public enum EExchange
-{
-        DCE,
-	SHFE,
-	CZCE,
-	CFFEX,
-	INE,
+	public enum EExchange
+	{
+		DCE,
+		SHFE,
+		CZCE,
+		CFFEX,
+		INE,
 
-	XSHE,		// 深圳
+		XSHE,       // 深圳
 
-}
+	}
 
 
-public static class TimeFrame
-{
-    public static string ToResolutionString(this ETimeFrame tf)
-    {
-        switch (tf)
-        {
-            case ETimeFrame.tick:
-                return "tick";
-            case ETimeFrame.m1:
-                return "1m";
-            case ETimeFrame.m5:
-                return "5m";
-            case ETimeFrame.m15:
-                return "15m";
-            case ETimeFrame.m30:
-                return "30m";
-            case ETimeFrame.m60:
-                return "60m";
-            case ETimeFrame.m120:
-                return "120m";
-            case ETimeFrame.D1:
-                return "1d";
-            case ETimeFrame.W1:
-                return "1w";
-            case ETimeFrame.M1:
-                return "1M";
-        }
+	public static class TimeFrame
+	{
+		public static string ToResolutionString(this ETimeFrame tf)
+		{
+			switch(tf)
+			{
+				case ETimeFrame.tick:
+					return "tick";
+				case ETimeFrame.m1:
+					return "1m";
+				case ETimeFrame.m5:
+					return "5m";
+				case ETimeFrame.m15:
+					return "15m";
+				case ETimeFrame.m30:
+					return "30m";
+				case ETimeFrame.m60:
+					return "60m";
+				case ETimeFrame.m120:
+					return "120m";
+				case ETimeFrame.D1:
+					return "1d";
+				case ETimeFrame.W1:
+					return "1w";
+				case ETimeFrame.M1:
+					return "1M";
+			}
 
-        throw new NotImplementedException();
-    }
+			throw new NotImplementedException();
+		}
 
-    public static ETimeFrame FromString(string str)
-    {
-        switch (str)
-        {
-            case "tick":
-                return ETimeFrame.tick;
-            case "1m":
-                return ETimeFrame.m1;
-            case "5m":
-                return ETimeFrame.m5;
-            case "15m":
-                return ETimeFrame.m15;
-            case "30m":
-                return ETimeFrame.m30;
-            case "60m":
-                return ETimeFrame.m60;
-            case "120m":
-                return ETimeFrame.m120;
-            case "1d":
-                return ETimeFrame.D1;
-            case "1w":
-                return ETimeFrame.W1;
-            case "1M":
-                return ETimeFrame.M1;
-        }
+		public static ETimeFrame FromString(string str)
+		{
+			switch(str)
+			{
+				case "tick":
+					return ETimeFrame.tick;
+				case "1m":
+					return ETimeFrame.m1;
+				case "5m":
+					return ETimeFrame.m5;
+				case "15m":
+					return ETimeFrame.m15;
+				case "30m":
+					return ETimeFrame.m30;
+				case "60m":
+					return ETimeFrame.m60;
+				case "120m":
+					return ETimeFrame.m120;
+				case "1d":
+					return ETimeFrame.D1;
+				case "1w":
+					return ETimeFrame.W1;
+				case "1M":
+					return ETimeFrame.M1;
+			}
 
-        throw new NotImplementedException();
-    }
-}
+			throw new NotImplementedException();
+		}
+	}
 
 	public enum ESymbolType // 证券类型
 	{
@@ -136,7 +136,7 @@ public static class TimeFrame
 		Repo    //沪深两市交易所交易的回购合约
 	}
 
-	public enum EFutureProduct	// 期货类型
+	public enum EFutureProduct  // 期货类型
 	{
 		Commodity,
 		Index,      // 指数
@@ -162,16 +162,16 @@ public static class TimeFrame
 		public string de_listed_date { get; set; }
 		public string industry_name { get; set; }
 
-#region 期货
-		public string underlying_symbol { get; set; }		// 期货底层代码 RB
+		#region 期货
+		public string underlying_symbol { get; set; }       // 期货底层代码 RB
 		public string underlying_order_book_id { get; set; }
 		public EFutureProduct product { get; set; }
 		public string maturity_date { get; set; }
 		public double margin_rate { get; set; }
 		public double contract_multiplier { get; set; }
-#endregion
+		#endregion
 
-#region 股票/指数
+		#region 股票/指数
 		public string industry_code { get; set; }
 		public string special_type { get; set; }
 		public string status { get; set; }
@@ -180,7 +180,7 @@ public static class TimeFrame
 		public string sector_code { get; set; }
 		public string board_type { get; set; }
 		public double issue_price { get; set; }
-#endregion
+		#endregion
 
 		public override string ToString() { return $"{type,-18} {order_book_id,-10} {symbol,14}"; }
 	}
@@ -192,12 +192,12 @@ public static class TimeFrame
 		OTHER
 	}
 
-public class KeyValue
-{
+	public class KeyValue
+	{
 		public string name { get; set; }
 		public string value { get; set; }
 
-}
+	}
 
 	public class QuoteInfo
 	{
@@ -205,49 +205,49 @@ public class KeyValue
 
 		public double bytes_used { get; set; } // 当日已用流量（单位为字节）
 		public long remaining_days { get; set; } // 剩余期限（单位为天）
-		public license_type license_type { get; set; }	
+		public license_type license_type { get; set; }
 	}
 
 	public class DominantFuture
-{
-	public     DateTime date     { get; set; }
-		public string   dominant { get; set; }
+	{
+		public DateTime date { get; set; }
+		public string dominant { get; set; }
 
-}
+	}
 
-public class Bar
-{
-    //date,open,close,high,low,volume,money
-    //2018-12-04 10:00,11.00,11.03,11.07,10.97,4302800,47472956.00
-    //2018-12-04 10:30,11.04,11.04,11.06,10.98,3047800,33599476.00
-    public     string   order_book_id { get; set; }
-    public DateTime datetime      { get; set; }
-    public double   open          { get; set; }
-    public double   high          { get; set; }
-    public double   low           { get; set; }
-    public double   close         { get; set; }
+	public class Bar
+	{
+		//date,open,close,high,low,volume,money
+		//2018-12-04 10:00,11.00,11.03,11.07,10.97,4302800,47472956.00
+		//2018-12-04 10:30,11.04,11.04,11.06,10.98,3047800,33599476.00
+		public string order_book_id { get; set; }
+		public DateTime datetime { get; set; }
+		public double open { get; set; }
+		public double high { get; set; }
+		public double low { get; set; }
+		public double close { get; set; }
 
-    public double volume { get; set; } //            成交量
+		public double volume { get; set; } //            成交量
 
-    public double limit_up            { get; set; } //	涨停价
-    public double limit_down          { get; set; } //  跌停价
-    public double total_turnover      { get; set; } //  成交额
-    public int    num_trades          { get; set; } //  成交笔数 （仅支持股票、ETF、LOF；科创板提供范围为 2021-06-25 至今）
-    public double prev_close          { get; set; } //  昨日收盘价 （交易所披露的原始昨收价，复权方法对该字段无效）
-    public double settlement          { get; set; } //  结算价 （仅限期货日线数据）
-    public double prev_settlement     { get; set; } //  昨日结算价（仅限期货日线数据）
-    public double open_interest       { get; set; } //  累计持仓量（期货专用）
-    public string trading_date        { get; set; } //  pandasTimeStamp 交易日期（仅限期货分钟线数据），对应期货夜盘的情况
-    public string dominant_id         { get; set; } //  实际合约的                            order_book_id，对应期货 888 系主力连续合约的情况
-    public double strike_price        { get; set; } //  行权价，仅限           ETF 期权日线数据
-    public double contract_multiplier { get; set; } //  合约乘数，仅限 ETF 期权日线数据
-    public double iopv                { get; set; } //  场内基金实时估算净值
+		public double limit_up { get; set; } //	涨停价
+		public double limit_down { get; set; } //  跌停价
+		public double total_turnover { get; set; } //  成交额
+		public int num_trades { get; set; } //  成交笔数 （仅支持股票、ETF、LOF；科创板提供范围为 2021-06-25 至今）
+		public double prev_close { get; set; } //  昨日收盘价 （交易所披露的原始昨收价，复权方法对该字段无效）
+		public double settlement { get; set; } //  结算价 （仅限期货日线数据）
+		public double prev_settlement { get; set; } //  昨日结算价（仅限期货日线数据）
+		public double open_interest { get; set; } //  累计持仓量（期货专用）
+		public string trading_date { get; set; } //  pandasTimeStamp 交易日期（仅限期货分钟线数据），对应期货夜盘的情况
+		public string dominant_id { get; set; } //  实际合约的                            order_book_id，对应期货 888 系主力连续合约的情况
+		public double strike_price { get; set; } //  行权价，仅限           ETF 期权日线数据
+		public double contract_multiplier { get; set; } //  合约乘数，仅限 ETF 期权日线数据
+		public double iopv { get; set; } //  场内基金实时估算净值
 
 
-//   public double pre_close     { get; set; } // 
+		//   public double pre_close     { get; set; } // 
 
-    public override string ToString() => $" {datetime,-30} O:{open,-10} H:{high,-10} L:{low,-10} C:{close,-10} V:{volume,-10}";
-}
+		public override string ToString() => $" {datetime,-30} O:{open,-10} H:{high,-10} L:{low,-10} C:{close,-10} V:{volume,-10}";
+	}
 
 	public class Tick
 	{
@@ -298,16 +298,6 @@ public class Bar
 		public override string ToString() { return $" {datetime,-30} C:{last,-10} {b1}({b1_v}) -- {a1}({a1_v}) H:{high,-10} L:{low,-10} V:{volume,-10} "; }
 	}
 
-	public class CurrentPrice
-{
-    //code,current
-    //000001.XSHE,13.35
-    //600600.XSHG,42.4
-
-    public string code    { get; set; }
-    public double current { get; set; }
-}
-
 	public class FutureInfo
 	{
 		public string order_book_id { get; set; } //   期货代码，期货的独特的标识符（郑商所期货合约数字部分进行了补齐。例如原有代码'ZC609'补齐之后变为'ZC1609'）。主力连续合约 UnderlyingSymbol+88，例如'IF88' ；指数连续合约命名规则为 UnderlyingSymbol+99
@@ -330,69 +320,69 @@ public class Bar
 	}
 
 
-public static class RqDataCommon
-{
-    public static string ToJqDate(this DateTime dt) { return dt.ToString("yyyy-MM-dd"); }
-}
+	public static class RqDataCommon
+	{
+		public static string ToJqDate(this DateTime dt) { return dt.ToString("yyyy-MM-dd"); }
+	}
 
 
-public class RqDataChannel
-{
-    public override string ToString()
-    {
-        if (Tf == ETimeFrame.tick)
-            return $"tick_{order_book_id}";
-		else
-            return $"bar_{order_book_id}_{Tf.ToResolutionString()}";
-    }
+	public class RqDataChannel
+	{
+		public override string ToString()
+		{
+			if(Tf == ETimeFrame.tick)
+				return $"tick_{order_book_id}";
+			else
+				return $"bar_{order_book_id}_{Tf.ToResolutionString()}";
+		}
 
-    public static implicit operator RqDataChannel(string str)
-    {
-        var ss = str.Split('_');
-        if (ss.Length == 2)
-            return new RqDataChannel() { order_book_id = ss[1], Tf = ETimeFrame.tick };
-		else
-            return new RqDataChannel() { order_book_id = ss[1], Tf = TimeFrame.FromString(ss[2]) };
-    }
-
-
-    public static bool operator ==(RqDataChannel l, RqDataChannel r)
-    {
-        if (l.order_book_id == r.order_book_id)
-            return l.Tf == r.Tf;
-        return false;
-    }
-
-    public static bool operator !=(RqDataChannel vector1, RqDataChannel vector2) { return !(vector1 == vector2); }
-
-    public static bool Equals(RqDataChannel l, RqDataChannel r)
-    {
-        if (l.order_book_id.Equals(r.order_book_id))
-            return l.Tf.Equals(r.Tf);
-        return false;
-    }
-
-    public override bool Equals(object o)
-    {
-        if (o == null || !(o is RqDataChannel))
-            return false;
-        return RqDataChannel.Equals(this, (RqDataChannel)o);
-    }
-
-    public bool Equals(RqDataChannel value) { return RqDataChannel.Equals(this, value); }
-
-    public override int GetHashCode() { return order_book_id == null ? Tf.GetHashCode() : order_book_id.GetHashCode() ^ Tf.GetHashCode(); }
+		public static implicit operator RqDataChannel(string str)
+		{
+			var ss = str.Split('_');
+			if(ss.Length == 2)
+				return new RqDataChannel() { order_book_id = ss[1], Tf = ETimeFrame.tick };
+			else
+				return new RqDataChannel() { order_book_id = ss[1], Tf = TimeFrame.FromString(ss[2]) };
+		}
 
 
-    public RqDataChannel(){}
-    public RqDataChannel(string order_book_id, ETimeFrame tf)
-    {
-        order_book_id = order_book_id;
-        Tf            = tf;
-    }
+		public static bool operator ==(RqDataChannel l, RqDataChannel r)
+		{
+			if(l.order_book_id == r.order_book_id)
+				return l.Tf == r.Tf;
+			return false;
+		}
 
-    public string     order_book_id { get; set; }
-    public ETimeFrame Tf            { get; set; }
-}
+		public static bool operator !=(RqDataChannel vector1, RqDataChannel vector2) { return !(vector1 == vector2); }
+
+		public static bool Equals(RqDataChannel l, RqDataChannel r)
+		{
+			if(l.order_book_id.Equals(r.order_book_id))
+				return l.Tf.Equals(r.Tf);
+			return false;
+		}
+
+		public override bool Equals(object o)
+		{
+			if(o == null || !(o is RqDataChannel))
+				return false;
+			return RqDataChannel.Equals(this, (RqDataChannel)o);
+		}
+
+		public bool Equals(RqDataChannel value) { return RqDataChannel.Equals(this, value); }
+
+		public override int GetHashCode() { return order_book_id == null ? Tf.GetHashCode() : order_book_id.GetHashCode() ^ Tf.GetHashCode(); }
+
+
+		public RqDataChannel() { }
+		public RqDataChannel(string order_book_id, ETimeFrame tf)
+		{
+			this.order_book_id = order_book_id;
+			Tf = tf;
+		}
+
+		public string order_book_id { get; set; }
+		public ETimeFrame Tf { get; set; }
+	}
 
 }

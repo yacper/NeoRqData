@@ -6,6 +6,7 @@ License Key: eJzdV0l7o0YQ/UfzsZjMcIxsg0QsPMJSA33JxyKGpcEkGEnw6/O6JdkssnNODj646Np
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -30,6 +31,7 @@ public class Tests
 
         bool ret = await Client_.Connect();
         ret.Should().Be(true);
+        Debug.WriteLine(Client_.Dump());
     }
 
 
@@ -110,18 +112,23 @@ public class Tests
     {
        // var rtn = await Client_.get_dominant("AU");
 
-        var rtn2 = await Client_.get_dominant("AU", DateTime.Parse("2022/8/20"), DateTime.Parse("2022/8/20"));
+        var rtn2 = await Client_.get_dominant("AU", DateTime.Parse("2022/7/20"), DateTime.Parse("2022/8/20"));
 	    Debug.WriteLine(rtn2.Dump());
     }
 
     [Test]
     public async Task Websocket()
     {
-       // var rtn = await Client_.get_dominant("AU");
+	    var rt = await Client_.Subscribe("AU2210", ETimeFrame.tick);
+	    Debug.WriteLine(rt.Dump());
 
-       //await Client_.StartWebsocket();
+	    Client_.OnTickEvent += (s, e) =>
+	    {
+	        Debug.WriteLine(e.Dump());
+	    };
 
        await Task.Delay(1000000);
+
     }
 
 
