@@ -295,6 +295,17 @@ public class Tick
     public double   iopv            { get; set; } //      场内基金实时估算净值
     public double   prev_iopv       { get; set; } // 场内基金前估算净值
 
+    //public Bar ToBar()
+    //{
+    //    return new Bar()
+    //    {
+    //        datetime = datetime,
+    //        open = 
+
+
+    //    };
+
+    //}
 
     public override string ToString() { return $" {datetime,-30} C:{last,-10} {b1}({b1_v}) -- {a1}({a1_v}) H:{high,-10} L:{low,-10} V:{volume,-10} "; }
 }

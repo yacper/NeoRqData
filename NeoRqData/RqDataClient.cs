@@ -279,6 +279,12 @@ public partial class RqDataClient : ObservableObject, IRqDataClient
         IEnumerable<string>                       fields    = null, EAdjustType adjust_type = EAdjustType.pre, bool     skip_suspended = false, EMarket    market    = EMarket.cn,
         bool                                      expect_df = true, string      time_slice  = null)
     {
+        if (frequency == ETimeFrame.tick)
+        {
+            Logger?.Error($"{ToString()} get_price tick 不支持");
+            return new();
+        }
+
         try
         {
             var ret = await ApiUrl.WithHeader("token", Token).PostJsonAsync(new
@@ -297,9 +303,7 @@ public partial class RqDataClient : ObservableObject, IRqDataClient
             }).ReceiveStream();
             //}).ReceiveString();
 
-            List<Bar> rtn = ret.FromCsv<Bar>();
-
-            return rtn;
+            return ret.FromCsv<Bar>();
         }
         catch (Exception e)
         {

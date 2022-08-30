@@ -73,19 +73,23 @@ public class Tests
     {
         //var rtn = await Client_.get_price("AU2210".ToEnumerable(), DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/20"), ETimeFrame.D1, new []{"open","close"}); // 主力连续合约
 
-        var rtn3 = await Client_.get_price("au2210", DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/02"), ETimeFrame.m1); // 主力连续合约
-        Debug.WriteLine(rtn3.Dump());
+        //var rtn3 = await Client_.get_price("au2210", DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/02"), ETimeFrame.m1); // 主力连续合约
+        //Debug.WriteLine(rtn3.Dump());
 
 
-        var rtn2 = await Client_.get_price("AU2210", DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/20"), ETimeFrame.D1, new[] { "close" }); // 主力连续合约
-        Debug.WriteLine(rtn2.Dump());
+        //var rtn2 = await Client_.get_price("AU2210", DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/30 23:40:00"), ETimeFrame.D1); // 主力连续合约
+
+        // 不支持
+        var rtn2 = await Client_.get_price("AU2210", DateTime.Parse("2022/08/29 21:00:00"), DateTime.Parse("2022/08/29 22:00:00"), ETimeFrame.tick); // 主力连续合约
+        rtn2.ForEach(p=>Debug.WriteLine(p.ToString()));
     }
 
     [Test]
     public async Task get_ticks()
     {
         var rtn = await Client_.get_ticks("AU2210"); //
-        Debug.WriteLine(rtn.Dump());
+        rtn.ForEach(p=>Debug.WriteLine(p.ToString()));
+        //Debug.WriteLine(rtn.ToJson());
     }
 
 
@@ -94,9 +98,9 @@ public class Tests
     {
         //var rtn = await Client_.get_live_ticks("AU2210"); //
         //var rtn = await Client_.get_live_ticks("rm2209"); //
-        //var rtn2 = await Client_.get_live_ticks("AU2210", new Tuple<DateTime, DateTime>(DateTime.Parse("2022/08/26 21:00:00"), DateTime.Parse("2022/08/26 22:00:00"))); //
-        var rtn3 = await Client_.get_live_ticks("AU2210", new Tuple<DateTime, DateTime>(DateTime.Parse("2022/08/26 21:00:00"), DateTime.Parse("2022/08/26 21:02:00")), new[] { "open", "high" }); //
-        Debug.WriteLine(rtn3.Dump());
+        var rtn = await Client_.get_live_ticks("AU2210", new Tuple<DateTime, DateTime>(DateTime.Parse("2022/08/29 21:00:00"), DateTime.Parse("2022/08/29 22:00:00"))); //
+        //var rtn3 = await Client_.get_live_ticks("AU2210", new Tuple<DateTime, DateTime>(DateTime.Parse("2022/08/26 21:00:00"), DateTime.Parse("2022/08/26 21:02:00")), new[] { "open", "high" }); //
+        rtn.ForEach(p=>Debug.WriteLine(p.ToString()));
     }
 
 

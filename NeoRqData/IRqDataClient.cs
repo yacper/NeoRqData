@@ -57,8 +57,13 @@ namespace NeoRqData
 
 		#region 历史行情
 
-		// 获取合约历史行情数据
+        //历史数据可用时间
+        //期货日线，T日 16：00
+        //期货分钟线，T日16：00   目前分钟线其实是实时的
+        //期货tick 数据，T日17：00
+		// 获取合约历史行情数据, day当天的16:00后
 		// https://www.ricequant.com/doc/rqdata/python/generic-api.html#get-price-%E8%8E%B7%E5%8F%96%E5%90%88%E7%BA%A6%E5%8E%86%E5%8F%B2%E8%A1%8C%E6%83%85%E6%95%B0%E6%8D%AE
+		// frequency 不支持tick(有返回，但是时间处理有差异，tick不要使用该函数)
 		Task<List<Bar>> get_price(string order_book_id, DateTime start_date, DateTime end_date, ETimeFrame frequency = ETimeFrame.D1,
 			IEnumerable<string> fields = null, EAdjustType adjust_type = EAdjustType.pre, bool skip_suspended = false,
 			EMarket market = EMarket.cn, bool expect_df = true, string time_slice = null);
