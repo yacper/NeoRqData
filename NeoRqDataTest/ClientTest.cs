@@ -27,14 +27,11 @@ public class Tests
     {
         //Client_ = new RqDataClient("15755006301", "Welcome123");
 
-        Client_ = new RqDataClient("18621301957", "hello@123", "LM5xlOCD4vY06OAMcR3yFlbD95uV8nkBmdu7RC4yLhmF--FjE_P3w0v_hPKch1LFaDMM_ZdIBv4zP10XX-oaOh43Xm2c5vMdR4-4w6zi7IplJ_jTssuCJO1z_5iZcZWyuqrVZswe3qzOcOlEDVv3K4Z35zcaaUz3_QviC9T8b6Y=gkxCS1k7PDTWIOGNtA6UPrMaYILpjczvxT3USeAhON9QNjU2zyAk1gMaGjgaws-UUFcQIKFQEBaboQnCQwHpJpRPVy5oD2EVPo2cImoZ4Pnbm9wkgVNDGYR0wbkaHbsf0x4AAxTluyrC33yKW_tRk565CrurR83URsHKH1NpAnA=");
-			Client_.OnRspAuthEvent += (s, e) =>
-			{
+        Client_ = new RqDataClient("18621301957", "hello@123",
+                                   "LM5xlOCD4vY06OAMcR3yFlbD95uV8nkBmdu7RC4yLhmF--FjE_P3w0v_hPKch1LFaDMM_ZdIBv4zP10XX-oaOh43Xm2c5vMdR4-4w6zi7IplJ_jTssuCJO1z_5iZcZWyuqrVZswe3qzOcOlEDVv3K4Z35zcaaUz3_QviC9T8b6Y=gkxCS1k7PDTWIOGNtA6UPrMaYILpjczvxT3USeAhON9QNjU2zyAk1gMaGjgaws-UUFcQIKFQEBaboQnCQwHpJpRPVy5oD2EVPo2cImoZ4Pnbm9wkgVNDGYR0wbkaHbsf0x4AAxTluyrC33yKW_tRk565CrurR83URsHKH1NpAnA=");
+        Client_.OnRspAuthEvent += (s, e) => { Debug.WriteLine(e.Dump()); };
 
-				Debug.WriteLine(e.Dump());
-			};
-
-			bool ret = await Client_.Connect();
+        bool ret = await Client_.Connect();
         ret.Should().Be(true);
         Debug.WriteLine(Client_.Dump());
     }
@@ -46,7 +43,6 @@ public class Tests
         var rtn = await Client_.info();
         Debug.WriteLine(rtn);
     }
-
 
 
     [Test]
@@ -61,15 +57,15 @@ public class Tests
     {
         //var rtn = await Client_.all_instruments(ESymbolType.Future, EMarket.cn);
         var rtn2 = await Client_.all_instruments(ESymbolType.Future, EMarket.cn, DateTime.Now);
-	    Debug.WriteLine(rtn2.Dump());
+        Debug.WriteLine(rtn2.Dump());
     }
 
     [Test]
     public async Task instruments()
     {
         //var rtn1 = await Client_.instruments("000001.XSHE");      // 指数
-        var rtn2 = await Client_.instruments("rb2210");     // 期货
-	    Debug.WriteLine(rtn2.Dump());
+        var rtn2 = await Client_.instruments("rb2210"); // 期货
+        Debug.WriteLine(rtn2.Dump());
     }
 
     [Test]
@@ -78,78 +74,68 @@ public class Tests
         //var rtn = await Client_.get_price("AU2210".ToEnumerable(), DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/20"), ETimeFrame.D1, new []{"open","close"}); // 主力连续合约
 
         var rtn3 = await Client_.get_price("au2210", DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/02"), ETimeFrame.m1); // 主力连续合约
-	    Debug.WriteLine(rtn3.Dump());
+        Debug.WriteLine(rtn3.Dump());
 
 
-        var rtn2 = await Client_.get_price("AU2210", DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/20"), ETimeFrame.D1, new []{"close"}); // 主力连续合约
-	    Debug.WriteLine(rtn2.Dump());
+        var rtn2 = await Client_.get_price("AU2210", DateTime.Parse("2022/08/01"), DateTime.Parse("2022/08/20"), ETimeFrame.D1, new[] { "close" }); // 主力连续合约
+        Debug.WriteLine(rtn2.Dump());
     }
 
-  [Test]
+    [Test]
     public async Task get_ticks()
     {
         var rtn = await Client_.get_ticks("AU2210"); //
-	    Debug.WriteLine(rtn.Dump());
+        Debug.WriteLine(rtn.Dump());
     }
 
 
-  [Test]
+    [Test]
     public async Task get_live_ticks()
     {
         //var rtn = await Client_.get_live_ticks("AU2210"); //
         //var rtn = await Client_.get_live_ticks("rm2209"); //
         //var rtn2 = await Client_.get_live_ticks("AU2210", new Tuple<DateTime, DateTime>(DateTime.Parse("2022/08/26 21:00:00"), DateTime.Parse("2022/08/26 22:00:00"))); //
-        var rtn3 = await Client_.get_live_ticks("AU2210", new Tuple<DateTime, DateTime>(DateTime.Parse("2022/08/26 21:00:00"), DateTime.Parse("2022/08/26 21:02:00")), new []{"open", "high"}); //
-	    Debug.WriteLine(rtn3.Dump());
+        var rtn3 = await Client_.get_live_ticks("AU2210", new Tuple<DateTime, DateTime>(DateTime.Parse("2022/08/26 21:00:00"), DateTime.Parse("2022/08/26 21:02:00")), new[] { "open", "high" }); //
+        Debug.WriteLine(rtn3.Dump());
     }
-
 
 
     [Test]
     public async Task get_future_contracts()
     {
         var rtn2 = await Client_.get_contracts("AU", DateTime.Parse("2022/8/20"));
-	    Debug.WriteLine(rtn2.Dump());
+        Debug.WriteLine(rtn2.Dump());
     }
 
     [Test]
     public async Task get_dominant_future()
     {
-       // var rtn = await Client_.get_dominant("AU");
+        // var rtn = await Client_.get_dominant("AU");
 
         var rtn2 = await Client_.get_dominant("AU", DateTime.Parse("2022/7/20"), DateTime.Parse("2022/8/20"));
-	    Debug.WriteLine(rtn2.Dump());
+        Debug.WriteLine(rtn2.Dump());
     }
 
     [Test]
     public async Task Websocket_tick()
     {
-	    var rt = await Client_.Subscribe("AU2210", ETimeFrame.tick);
-	    Debug.WriteLine(rt.Dump());
+        var rt = await Client_.Subscribe("AU2210", ETimeFrame.tick);
+        Debug.WriteLine(rt.Dump());
 
-	    Client_.OnTickEvent += (s, e) =>
-	    {
-	        Debug.WriteLine(e.Dump());
-	    };
+        Client_.OnTickEvent += (s, e) => { Debug.WriteLine(e.Dump()); };
 
-       await Task.Delay(1000000);
-
+        await Task.Delay(1000000);
     }
 
     [Test]
     public async Task Websocket_bar()
     {
-		var rt = await Client_.Subscribe("AU2210", ETimeFrame.m1);
-	    Debug.WriteLine(rt.Dump());
+        var rt = await Client_.Subscribe("AU2210", ETimeFrame.m5);
+        Debug.WriteLine(rt.Dump());
 
-	    Client_.OnBarEvent += (s, e) =>
-	    {
-	        Debug.WriteLine(e.Dump());
-	    };
+        Client_.OnBarEvent += (s, e) => { Debug.WriteLine(e.Dump()); };
 
-       await Task.Delay(1000000);
-
+        await Task.Delay(1000000);
     }
-
-		}
+}
 }

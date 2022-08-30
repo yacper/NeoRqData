@@ -36,13 +36,13 @@ namespace NeoRqData
 	public interface IRqDataClient
 	{
 		string Token { get; }
-	
-		string LastErrMsg { get; }
 
 		EConnectionState     ConnectionState { get; }
         event EventHandler<string> OnErrorEvent;
 
 		Task<bool> Connect(string user = null, string pwd = null, string licenseKey = null);
+
+        Task DisConnect();
 
 		Task<string>    info();		// 无用
 		Task<QuoteInfo> get_quota(); // 获取用户配额信息
