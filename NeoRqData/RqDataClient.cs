@@ -93,15 +93,15 @@ public partial class RqDataClient : ObservableObject, IRqDataClient
 
     public async Task<bool> Connect(string user = null, string pwd = null, string licenseKey = null)
     {
+        if (user != null)
+            Account = user;
+        if (pwd != null)
+            Pwd = pwd;
+        if (licenseKey != null)
+            LicenseKey = licenseKey;
+
         if (ConnectionState == EConnectionState.Disconnected)
         {
-            if (user != null)
-                Account = user;
-            if (pwd != null)
-                Pwd = pwd;
-            if (licenseKey != null)
-                LicenseKey = licenseKey;
-
             //error:auth failed
             //认证失败
             ConnectionState = EConnectionState.Connecting;
