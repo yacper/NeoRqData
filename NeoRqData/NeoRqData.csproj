@@ -12,7 +12,6 @@
     <PackageReference Include="Autofac" Version="6.4.0" />
     <PackageReference Include="Flurl.Http" Version="3.2.4" />
     <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog" Version="5.0.1" />
     <PackageReference Include="ObjectDumper.NET" Version="3.4.6" />
     <PackageReference Include="RLib.Base" Version="0.0.3" />
