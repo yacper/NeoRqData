@@ -19,8 +19,7 @@ public class Tests
     [OneTimeSetUp]
     public async Task Setup()
     {
-        Client_ = new RqDataClient("user", "password",
-                                   "lisencekey");
+        Client_                =  new RqDataClient("user", "password", "lisencekey");
         Client_.OnRspAuthEvent += (s, e) => { Debug.WriteLine(e.Dump()); };
 
         bool ret = await Client_.Connect();
@@ -49,6 +48,7 @@ public class Tests
     {
         //var rtn = await Client_.all_instruments(ESymbolType.Future, EMarket.cn);
         var rtn2 = await Client_.all_instruments(ESymbolType.Future, EMarket.cn, DateTime.Now);
+        rtn2.ToExcel("Cn_Futures.xls");
         Debug.WriteLine(rtn2.Dump());
     }
 
@@ -99,7 +99,7 @@ public class Tests
     [Test]
     public async Task get_future_contracts()
     {
-        var rtn2 = await Client_.get_contracts("AU", DateTime.Parse("2022/8/20"));
+        var rtn2 = await Client_.get_contracts("AU", DateTime.Parse("2023/5/20"));
         Debug.WriteLine(rtn2.Dump());
     }
 

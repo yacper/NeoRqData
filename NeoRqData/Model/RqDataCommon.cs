@@ -56,6 +56,7 @@ public enum EExchange
     CZCE,
     CFFEX,
     INE,
+    GFEX,   // 广东期货交易所 工业硅
 
     XSHE, // 深圳
 }
@@ -143,16 +144,15 @@ public enum EFutureProduct // 期货类型
 }
 
 
-// 期货		order_book_id,type,exchange,symbol,underlying_symbol,underlying_order_book_id,product,maturity_date,de_listed_date,listed_date,round_lot,margin_rate,contract_multiplier,trading_code,market_tplus,trading_hours,industry_name 
-// 期货		order_book_id,	type,	exchange,	symbol,		underlying_symbol,underlying_order_book_id,	product,	maturity_date,	de_listed_date, listed_date,	round_lot,	margin_rate, contract_multiplier, trading_code, market_tplus, trading_hours,									industry_name
-//			RB2210,			Future,	SHFE,		螺纹钢2210,	RB,											,Commodity,	2022-10-17,		2022-10-17,		2021-10-18,		1,			0.13,			10,				  rb2210,		0,			  "21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",  焦煤钢矿
+// 期货		,type,order_book_id,exchange,symbol,underlying_symbol,underlying_order_book_id,product,maturity_date,de_listed_date,listed_date,round_lot,margin_rate,contract_multiplier,trading_code,market_tplus,trading_hours,industry_name,start_delivery_date,end_delivery_date
+//         0,Future,A2307,DCE,黄大豆1号2307,A,,Commodity,2023-07-14,2023-07-14,2022-07-15,1.0,0.08,10.0,a2307,0.0,"21:01-23:00,09:01-10:15,10:31-11:30,13:31-15:00",油脂,2023-07-19,2023-07-19
 // 股票/指数 order_book_id,industry_code,market_tplus,symbol,special_type,exchange,status,type,de_listed_date,listed_date,sector_code_name,abbrev_symbol,sector_code,round_lot,trading_hours,board_type,industry_name,issue_price,trading_code 
 public class SecurityInfo
 {
-    public string      order_book_id  { get; set; }
-    public string      symbol         { get; set; }
     public ESymbolType type           { get; set; }
+    public string      order_book_id  { get; set; }
     public EExchange   exchange       { get; set; }
+    public string      symbol         { get; set; }
     public string      trading_code   { get; set; }
     public double      market_tplus   { get; set; }
     public double      round_lot      { get; set; }
@@ -169,11 +169,11 @@ public class SecurityInfo
     public string         maturity_date            { get; set; }
     public double         margin_rate              { get; set; }
     public double         contract_multiplier      { get; set; }
-
+    public string       start_delivery_date { get;              set; }
+    public string       end_delivery_date { get;              set; }
 #endregion
 
 #region 股票/指数
-
     public string industry_code    { get; set; }
     public string special_type     { get; set; }
     public string status           { get; set; }
@@ -182,7 +182,6 @@ public class SecurityInfo
     public string sector_code      { get; set; }
     public string board_type       { get; set; }
     public double issue_price      { get; set; }
-
 #endregion
 
     public override string ToString() { return $"{type,-18} {order_book_id,-10} {symbol,14}"; }
