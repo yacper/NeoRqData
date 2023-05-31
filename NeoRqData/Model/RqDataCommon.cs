@@ -53,7 +53,7 @@ public enum EExchange
 {
     DCE,
     SHFE,
-    CZCE,
+    CZCE,       
     CFFEX,
     INE,
     GFEX,   // 广东期货交易所 工业硅
