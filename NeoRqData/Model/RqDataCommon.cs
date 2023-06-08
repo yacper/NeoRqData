@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CsvHelper.Configuration.Attributes;
 
 namespace NeoRqData
 {
@@ -256,6 +257,7 @@ public class Tick
     //1	2021/10/8 09:00:00.500	22555	22575	22555	380	42857625	83616	22560	18	22555	39	5	100
     //2	2021/10/8 09:00:01.000	22585	22585	22555	604	68133775	83559	22585	20	22565	3	20	224
 
+    [Format("yyyy-MM-dd HH:mm:ss.fff")]  // csvhelper 日期格式
     public DateTime datetime { get; set; }
 
     public double   open            { get; set; } //             当日开盘价
