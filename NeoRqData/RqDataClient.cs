@@ -6,19 +6,10 @@
     purpose:
     modifiers:	Finnhub的一个连接
 *********************************************************************/
-
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Net.WebSockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using RLib.Base;
 using Websocket.Client;
