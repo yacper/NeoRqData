@@ -79,9 +79,19 @@ public class Tests
     [Test]
     public async Task get_ticks()
     {
-        var rtn = await Client_.get_ticks("AU2210"); //
-        rtn.ForEach(p=>Debug.WriteLine(p.ToString()));
+        //string ticker = "AU2308"; // 上期
+        //string ticker = "SC2307";    // 上期能源
+        string ticker = "TA2309";    // 郑商所
+        //string ticker = "Y2309";    // 大商所
+        //string ticker = "SC2307";    // 上期能源
+        //string ticker = "IH2306";    // 中金所
+
+
+        var rtn = await Client_.get_ticks(ticker); //
+        //rtn.ForEach(p=>Debug.WriteLine(p.ToString()));
         //Debug.WriteLine(rtn.ToJson());
+        rtn.ToCsv($"{ticker}_{DateTime.Now:yy-MM-dd}.csv");
+
     }
 
 
@@ -115,7 +125,7 @@ public class Tests
     [Test]
     public async Task Websocket_tick()
     {
-        var rt = await Client_.Subscribe("AU2210", ETimeFrame.tick);
+        var rt = await Client_.Subscribe("AU2308", ETimeFrame.tick);
         Debug.WriteLine(rt.Dump());
 
         Client_.OnTickEvent += (s, e) => { Debug.WriteLine(e.Dump()); };
@@ -126,7 +136,7 @@ public class Tests
     [Test]
     public async Task Websocket_bar()
     {
-        var rt = await Client_.Subscribe("AU2210", ETimeFrame.m5);
+        var rt = await Client_.Subscribe("AU2308", ETimeFrame.m5);
         Debug.WriteLine(rt.Dump());
 
         Client_.OnBarEvent += (s, e) => { Debug.WriteLine(e.Dump()); };
