@@ -11,7 +11,7 @@ using System.Net.WebSockets;
 using Flurl;
 using Flurl.Http;
 using Newtonsoft.Json;
-using RLib.Base;
+using Sparks.Utils;
 using Websocket.Client;
 
 namespace NeoRqData
