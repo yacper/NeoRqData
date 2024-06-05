@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-	  <EnablePreviewFeatures>true</EnablePreviewFeatures>
+	  <!--<EnablePreviewFeatures>true</EnablePreviewFeatures>-->
 	  <NoWarn>1701;1702;8618</NoWarn>
 
 
