@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <!--<EnablePreviewFeatures>true</EnablePreviewFeatures>-->
     <NoWarn>1701;1702;8618</NoWarn>
+    <Platforms>AnyCPU;x64</Platforms>
 
   </PropertyGroup>
 
