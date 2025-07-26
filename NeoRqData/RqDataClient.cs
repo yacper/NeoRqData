@@ -420,41 +420,41 @@ public partial class RqDataClient : ObservableObject, IRqDataClient
                                                            return;
                                                        }
 
-                                                       var rspBase = rtnStr.ToJsonObj<RqWebsocketRsp>();
+                                                       var rspBase = rtnStr.FromJson<RqWebsocketRsp>();
                                                        switch (rspBase.action)
                                                        {
                                                            case ERqWebsocketActionType.auth_reply:
                                                            {
-                                                               var rsp = rtnStr.ToJsonObj<AuthRsp>();
+                                                               var rsp = rtnStr.FromJson<AuthRsp>();
                                                                OnRspAuthEvent?.Invoke(this, rsp);
                                                                return;
                                                            }
                                                                break;
                                                            case ERqWebsocketActionType.subscribe_reply:
                                                            {
-                                                               var rsp = rtnStr.ToJsonObj<SubscribeRsp>();
+                                                               var rsp = rtnStr.FromJson<SubscribeRsp>();
                                                                OnRspSubscribeEvent?.Invoke(this, rsp);
                                                                return;
                                                            }
                                                                break;
                                                            case ERqWebsocketActionType.unsubscribe_reply:
                                                            {
-                                                               var rsp = rtnStr.ToJsonObj<UnSubscribeRsp>();
+                                                               var rsp = rtnStr.FromJson<UnSubscribeRsp>();
                                                                OnRspUnSubscribeEvent?.Invoke(this, rsp);
                                                                return;
                                                            }
                                                                break;
                                                            case ERqWebsocketActionType.feed:
                                                            {
-                                                               var rsp = rtnStr.ToJsonObj<FeedRtn>();
+                                                               var rsp = rtnStr.FromJson<FeedRtn>();
                                                                if (rsp.channel.Tf == ETimeFrame.tick)
                                                                {
-                                                                   var tick = rtnStr.ToJsonObj<RtTick>();
+                                                                   var tick = rtnStr.FromJson<RtTick>();
                                                                    OnTickEvent?.Invoke(this, tick);
                                                                }
                                                                else
                                                                {
-                                                                   var bar = rtnStr.ToJsonObj<RtBar>();
+                                                                   var bar = rtnStr.FromJson<RtBar>();
                                                                    OnBarEvent?.Invoke(this, bar);
                                                                }
 
